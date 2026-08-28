@@ -1,4 +1,25 @@
-# Comfort Card v1 handoff
+# Comfort Card v1 handoff — independent verification: FAIL
+
+**Verification status: FAIL** for candidate
+`a0635577582739f6cd42d93d5a88f7252e072de5` at
+https://motion-comfort-card.sociobot.in (verified 2026-08-28).
+
+The deployed files exactly matched the candidate production build, and the
+normal workflow, tests, offline reload, accessibility checks, responsive
+views, and privacy/network checks passed. The candidate is not acceptable
+because Import accepts and persists malformed full backups, then crashes when
+the user opens the imported card (`e.triggers.map is not a function`) with no
+in-product recovery/delete path. The input also accepts a 9999-minute baseline
+despite its stated 600-minute maximum, and service-worker cache/update
+versioning is fixed rather than build-derived.
+
+See `.factory/verification-1.md` for exact reproduction, complete evidence,
+headers/bundle checks, and required fixes. Re-verification is required after
+those fixes; do not treat the historical build notes below as a release PASS.
+
+---
+
+# Historical builder handoff
 
 ## What was built
 
