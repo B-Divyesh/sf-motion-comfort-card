@@ -13,7 +13,7 @@ describe('comfort card data', () => {
   it('creates readable non-medical share text', () => {
     const card = makeCard({ game: 'Example Game', triggers: ['motion-blur'] });
     expect(shareText(card)).toContain('Motion blur');
-    expect(shareText(card)).toContain('not a safety guarantee');
+    expect(shareText(card)).toContain('Comfort Card is not medical advice. It cannot tell you whether a game is safe or comfortable for you.');
   });
 
   it('calculates elapsed time without paused time', () => {

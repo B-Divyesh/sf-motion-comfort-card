@@ -145,7 +145,7 @@ export function shareText(card: ComfortCard): string {
   });
   if (card.customTrigger) triggerLabels.push(card.customTrigger);
   const plan = card.settings.filter((setting) => setting.enabled).map((setting, index) => `${index + 1}. ${setting.label}`).join('\n');
-  return `Comfort card for ${card.game}${card.platform ? ` (${card.platform})` : ''}\n\nThings I notice:\n${triggerLabels.length ? triggerLabels.map((label) => `• ${label}`).join('\n') : '• Still learning my triggers'}\n\nSettings to try:\n${plan}\n\nPersonal experiment only—not a safety guarantee or medical advice.`;
+  return `Comfort card for ${card.game}${card.platform ? ` (${card.platform})` : ''}\n\nThings I notice:\n${triggerLabels.length ? triggerLabels.map((label) => `• ${label}`).join('\n') : '• Still learning my triggers'}\n\nSettings to try:\n${plan}\n\nComfort Card is not medical advice. It cannot tell you whether a game is safe or comfortable for you.`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -61,5 +61,19 @@
     "where": "home card tools, privacy page, README",
     "test": "npm run test:e2e -- --grep @claim:backup-restore",
     "sandbox": "fresh /demo context; leave demo, create a card and private check-in, inspect a downloaded backup, clear storage, import it, and assert the session returns"
+  },
+  {
+    "id": "medical-scope",
+    "claim": "Comfort Card is not medical advice and cannot determine whether a game is safe or comfortable for someone",
+    "where": "landing stop guidance, terms, clean share, README",
+    "test": "npm run test:e2e -- --grep @claim:medical-scope",
+    "sandbox": "fresh browser context; assert the exact plain limitation on the landing page, terms route, generated clean share, and repository README"
+  },
+  {
+    "id": "pwa-routing",
+    "claim": "Production builds install a versioned service worker, reopen direct routes offline, and serve a styled 404 for missing pages",
+    "where": "README run and deploy sections",
+    "test": "npm run test:e2e -- --grep @claim:pwa-routing",
+    "sandbox": "fresh production preview context; inspect built worker and host config, wait for worker control, open direct routes, reload the demo offline, and assert a missing URL returns the styled HTTP 404"
   }
 ]

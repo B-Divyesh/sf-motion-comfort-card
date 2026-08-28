@@ -1,4 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+
+const MEDICAL_SCOPE = 'Comfort Card is not medical advice. It cannot tell you whether a game is safe or comfortable for you.';
 
 async function enterRealApp(page: import('@playwright/test').Page): Promise<void> {
   await page.goto('/demo');
@@ -160,4 +163,72 @@ test('@claim:backup-restore a downloaded full backup restores a saved card', asy
   await expect(page.getByText('Backup Bay')).toBeVisible();
   await page.getByText('Backup Bay').click();
   await expect(page.getByRole('table', { name: 'Finished sessions' })).toContainText('2 / 4');
+});
+
+test('@claim:medical-scope every public surface states the same medical and safety limit', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.care-note')).toContainText(MEDICAL_SCOPE);
+
+  await page.goto('/terms/');
+  await expect(page.getByText(MEDICAL_SCOPE, { exact: true })).toBeVisible();
+
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Share clean copy' }).click();
+  await expect(page.getByLabel('Share text')).toHaveValue(new RegExp(MEDICAL_SCOPE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+
+  const readme = await readFile('README.md', 'utf8');
+  expect(readme.match(new RegExp(MEDICAL_SCOPE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))).toHaveLength(1);
+});
+
+test('@claim:pwa-routing production worker controls direct routes offline and missing URLs keep a styled 404', async ({ page, context }) => {
+  const [manifestSource, worker, hostConfigSource, indexSource, appSource] = await Promise.all([
+    readFile('dist/manifest.webmanifest', 'utf8'),
+    readFile('dist/sw.js', 'utf8'),
+    readFile('dist/staticwebapp.config.json', 'utf8'),
+    readFile('dist/index.html', 'utf8'),
+    readFile('src/main.ts', 'utf8'),
+  ]);
+  const manifest = JSON.parse(manifestSource) as { start_url: string };
+  const version = manifest.start_url.match(/^\/?\?v=(comfort-card-[a-f0-9]{12})$/)?.[1];
+  expect(version).toBeTruthy();
+  expect(worker).toContain(`const VERSION = '${version}';`);
+  expect(worker).toContain('const PRECACHE =');
+  expect(worker).toContain('if (url.origin !== self.location.origin) return;');
+  expect(worker).toContain('"/"');
+  const appBundle = indexSource.match(/\/assets\/[^"']+\.js/)?.[0];
+  expect(appBundle).toBeTruthy();
+  expect(worker).toContain(appBundle);
+  expect(appSource).toContain("'serviceWorker' in navigator && import.meta.env.PROD");
+
+  const hostConfig = JSON.parse(hostConfigSource) as {
+    routes?: Array<{ route?: string; rewrite?: string }>;
+    responseOverrides?: Record<string, { rewrite?: string; statusCode?: number }>;
+  };
+  expect(hostConfig.routes).toEqual(expect.arrayContaining([
+    expect.objectContaining({ route: '/demo*', rewrite: '/index.html' }),
+    expect.objectContaining({ route: '/new', rewrite: '/index.html' }),
+    expect.objectContaining({ route: '/card/*', rewrite: '/index.html' }),
+  ]));
+  expect(hostConfig.responseOverrides?.['404']).toEqual(expect.objectContaining({ rewrite: '/404.html', statusCode: 404 }));
+
+  await page.goto('/demo');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+
+  await page.goto('/privacy/');
+  await expect(page).toHaveTitle('Privacy — Comfort Card');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your notes stay yours.');
+
+  await page.goto('/demo');
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page).toHaveTitle('Demo — Comfort Card');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Harbor Signal');
+  await expect(page.getByText('Offline mode · your saved cards still work')).toBeVisible();
+
+  await context.setOffline(false);
+  await page.goto('/definitely-missing');
+  await expect(page).toHaveTitle('Page not found — Comfort Card');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is not in the drawer.');
 });

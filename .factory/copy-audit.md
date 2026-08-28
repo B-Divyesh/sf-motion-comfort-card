@@ -20,7 +20,7 @@ Audited 2026-08-28. Counts use whitespace-delimited words. No landing sentence e
 | Works offline after the first visit | 6 | Pass |
 | Read the 3-step guide | 4 | Pass |
 | Stop playing when you feel unwell. | 6 | Pass |
-| This planning tool is not medical advice or a promise that a game will feel safe. | 15 | Pass |
+| Comfort Card is not medical advice. It cannot tell you whether a game is safe or comfortable for you. | 19 | Pass (`medical-scope`) |
 | You can pause or stop at any time. | 8 | Pass |
 | No game cards yet | 4 | Pass |
 | Start with the game you want to try. | 8 | Pass |
@@ -53,7 +53,7 @@ Developer commands, headings, and project-file references are excluded. Every re
 | The demo opens a completed Harbor Signal card. | 8 | Pass |
 | Demo changes disappear when you reload or leave. | 8 | Pass |
 | This tool helps you plan settings and record what you notice. | 11 | Pass |
-| It is not medical advice or a safety rating. | 9 | Pass |
+| Comfort Card is not medical advice. It cannot tell you whether a game is safe or comfortable for you. | 19 | Pass (`medical-scope`) |
 | Makes one card for each game and adds your usual comfortable play time. | 12 | Pass |
 | Lets you choose and order common motion settings before saving. | 10 | Pass |
 | Saves tried settings and play sessions in this browser. | 9 | Pass |
@@ -68,12 +68,12 @@ Developer commands, headings, and project-file references are excluded. Every re
 | A full backup contains those details, so treat it as private. | 11 | Pass |
 | Read the privacy page and terms. | 6 | Pass |
 | Vite prints the local development URL. | 6 | Pass |
-| Service-worker behavior runs only in a production build. | 8 | Pass |
+| Service-worker behavior runs only in a production build. | 8 | Pass (`pwa-routing`) |
 | Install Chromium with npx playwright install chromium if needed. | 9 | Pass |
 | Run these commands to verify a clean production build. | 9 | Pass |
 | Deploy the contents of dist/ as a static site. | 9 | Pass |
-| The host configuration maps product routes to the app and serves a styled 404 page. | 14 | Pass |
-| The versioned service worker caches the app shell and same-origin assets. | 11 | Pass |
+| The host configuration maps product routes to the app and serves a styled 404 page. | 14 | Pass (`pwa-routing`) |
+| The versioned service worker caches the app shell and same-origin assets. | 11 | Pass (`pwa-routing`) |
 
 ## Terminology
 

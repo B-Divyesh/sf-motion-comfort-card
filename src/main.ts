@@ -41,7 +41,8 @@ let timerInterval = 0;
 let afterCheckIn = false;
 let deferredInstall: Event | null = null;
 
-const BUILD_ID = 'polish-1';
+const BUILD_ID = 'polish-2';
+const MEDICAL_SCOPE = 'Comfort Card is not medical advice. It cannot tell you whether a game is safe or comfortable for you.';
 const PRODUCT_ORIGIN = 'https://motion-comfort-card.sociobot.in';
 
 function makeDemoCard(): ComfortCard {
@@ -158,7 +159,7 @@ function homeView(): string {
         <div class="hero-actions"><a class="button button-primary" href="/?demo=1" data-route>Try it with sample data</a><span class="action-note">Opens a completed game card.</span><a class="button" href="${routeHref('new')}" data-route>${icon('plus')} Make your own card</a></div>
         <ul class="hero-facts" aria-label="Product facts"><li>Free</li><li>Stored on this device</li><li>Works offline after the first visit</li></ul>
         <a class="quiet-link" href="#how-it-works">Read the 3-step guide <span aria-hidden="true">↓</span></a>
-        <p class="care-note"><strong>Stop playing when you feel unwell.</strong> This planning tool is not medical advice or a promise that a game will feel safe.</p>
+        <p class="care-note"><strong>Stop playing when you feel unwell.</strong> ${MEDICAL_SCOPE}</p>
       </div>
       <figure class="hero-art"><picture><source type="image/webp" srcset="/assets/comfort-card-hero-720.webp 720w, /assets/comfort-card-hero-1200.webp 1200w" sizes="(max-width: 760px) 100vw, 46vw"><img src="/assets/comfort-card-hero-1200.webp" width="1200" height="800" fetchpriority="high" alt="Risograph collage of a game controller, a large pause button, and a calm horizon." /></picture><figcaption>You can pause or stop at any time.</figcaption></figure>
     </section>
@@ -313,7 +314,7 @@ function endedSessionView(card: ComfortCard, session: Session): string {
 
 function legalView(kind: 'privacy' | 'terms'): string {
   const privacy = `<p class="eyebrow">Plain-language privacy</p><h1>Your notes stay yours.</h1><p class="legal-lede">Comfort Card works without an account. It saves game cards, symptom levels, and session notes in this browser.</p><h2>What leaves your device</h2><p>Nothing is sent to us. We use no analytics, ads, remote fonts, or third-party scripts. Your browser handles files or text you choose to share.</p><h2>Demo data</h2><p>The demo uses temporary memory. It never reads or changes your real cards. Reloading or leaving the demo discards its changes.</p><h2>Exports</h2><p>A clean shared card includes the game, platform, triggers, and settings plan. It excludes check-ins, dates, durations, and notes. A full backup includes all saved information. Treat that file as private.</p><h2>Deleting data</h2><p>Delete one card inside the app. You can also clear this site’s browser storage to remove every card.</p><h2>Contact</h2><p>For privacy questions, contact <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p><p class="legal-date">Effective 28 August 2026</p>`;
-  const terms = `<p class="eyebrow">Terms of use</p><h1>A planning tool, not a safety test.</h1><p class="legal-lede">Comfort Card helps you organize personal settings experiments and record how a play session felt. It does not diagnose, prevent, or treat motion sickness.</p><h2>Use your own judgment</h2><p>No setting can make every game comfortable or safe for every person. Stop when you feel unwell. Seek qualified medical advice for severe, unusual, or persistent symptoms.</p><h2>No compatibility promise</h2><p>Setting names and availability vary by game, platform, and version. Suggestions are general options to look for, not claims that a particular game supports them.</p><h2>Your content</h2><p>You own the cards and notes you create. They are stored locally. You are responsible for exports you choose to share.</p><h2>Availability and liability</h2><p>The free service is provided “as is” without warranties. To the extent permitted by law, its maintainers are not liable for loss arising from use of the app.</p><p class="legal-date">Effective 28 August 2026</p>`;
+  const terms = `<p class="eyebrow">Terms of use</p><h1>A planning tool, not a safety test.</h1><p class="legal-lede">${MEDICAL_SCOPE}</p><p>Comfort Card does not diagnose, prevent, or treat motion sickness.</p><h2>Use your own judgment</h2><p>No setting can make every game comfortable or safe for every person. Stop when you feel unwell. Seek qualified medical advice for severe, unusual, or persistent symptoms.</p><h2>No compatibility promise</h2><p>Setting names and availability vary by game, platform, and version. Suggestions are general options to look for, not claims that a particular game supports them.</p><h2>Your content</h2><p>You own the cards and notes you create. They are stored locally. You are responsible for exports you choose to share.</p><h2>Availability and liability</h2><p>The free service is provided “as is” without warranties. To the extent permitted by law, its maintainers are not liable for loss arising from use of the app.</p><p class="legal-date">Effective 28 August 2026</p>`;
   return shell(`<article class="legal"><a class="back-link" href="/" data-route>← Comfort Card</a>${kind === 'privacy' ? privacy : terms}</article>`);
 }
 

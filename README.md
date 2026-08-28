@@ -8,7 +8,8 @@ Live: [motion-comfort-card.sociobot.in](https://motion-comfort-card.sociobot.in)
 Try the isolated sample at [motion-comfort-card.sociobot.in/demo](https://motion-comfort-card.sociobot.in/demo).
 The demo opens a completed Harbor Signal card. Demo changes disappear when you reload or leave.
 
-This tool helps you plan settings and record what you notice. It is not medical advice or a safety rating.
+This tool helps you plan settings and record what you notice.
+Comfort Card is not medical advice. It cannot tell you whether a game is safe or comfortable for you.
 
 ## What it does
 
