@@ -44,4 +44,13 @@ Run each claim command exactly as listed in `.factory/claims.json`. Open `/demo`
 
 ## Known gaps and next steps
 
-No blocking review finding or known product defect remains. Deployment and live URL verification are recorded below after release.
+No blocking review finding or known product defect remains.
+
+## Deployment evidence
+
+- Pushed the repair and verification record to `origin/main` through commit `fc3e8c1`.
+- Deployed `dist/` with the work order’s static deployer to [motion-comfort-card.sociobot.in](https://motion-comfort-card.sociobot.in) (Azure deployment `56297333-030e-405f-bba6-5be3316dbc96`).
+- The worker URL verifier passed live: title present, `lang=en`, one h1, main landmark, complete image alt text, labeled buttons, and no console/page errors.
+- Live HTTP checks returned 200 for home, demo, privacy, and terms; `/definitely-missing` returned 404. CSP, Referrer-Policy, Permissions-Policy, and X-Content-Type-Options headers are present.
+- A fresh 390×844 live Chromium context opened `/?demo=1` with the Demo title and Harbor Signal sample. Its IndexedDB database list stayed empty; Reset restored the sample; an offline reload retained it.
+- The complete live demo flow made zero third-party requests and logged zero console/page errors.
