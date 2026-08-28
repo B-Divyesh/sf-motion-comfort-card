@@ -61,7 +61,7 @@ Developer commands, headings, and project-file references are excluded. Every re
 | Records symptom check-ins, familiar triggers, and optional private notes. | 9 | Pass |
 | Exports a clean card without session history or notes. | 9 | Pass |
 | Exports and imports a full backup file. | 7 | Pass |
-| Reopens the sample and saved app shell offline after the first visit. | 12 | Pass |
+| Reopens the sample offline after the first visit. | 8 | Pass |
 | No account, ads, analytics, or third-party scripts are used. | 9 | Pass |
 | Cards remain in this browser unless you download, import, copy, or share them. | 13 | Pass |
 | A clean card leaves out session dates, durations, symptom scores, and notes. | 12 | Pass |

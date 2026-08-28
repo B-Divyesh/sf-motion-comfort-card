@@ -19,7 +19,7 @@ This tool helps you plan settings and record what you notice. It is not medical 
 - Records symptom check-ins, familiar triggers, and optional private notes.
 - Exports a clean card without session history or notes.
 - Exports and imports a full backup file.
-- Reopens the sample and saved app shell offline after the first visit.
+- Reopens the sample offline after the first visit.
 
 ## Privacy
 
