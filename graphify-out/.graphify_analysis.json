@@ -1,33 +1,6 @@
 {
   "communities": {
     "0": [
-      "src_model",
-      "src_model_buildsharepayload",
-      "src_model_checkin",
-      "src_model_default_settings",
-      "src_model_iscomfortcard",
-      "src_model_isknowntriggerarray",
-      "src_model_isrecord",
-      "src_model_isstringarray",
-      "src_model_istext",
-      "src_model_istimestamp",
-      "src_model_iswholenumber",
-      "src_model_makecard",
-      "src_model_makesession",
-      "src_model_max_baseline_minutes",
-      "src_model_parseimport",
-      "src_model_session",
-      "src_model_setting",
-      "src_model_sharepayload",
-      "src_model_sharetext",
-      "src_model_test",
-      "src_model_triggers",
-      "src_model_uid",
-      "src_model_validcheckin",
-      "src_model_validsession",
-      "src_model_validsetting"
-    ],
-    "1": [
       "ref_dom",
       "ref_dom_iterable",
       "ref_es2022",
@@ -51,7 +24,46 @@
       "tsconfig_compileroptions_usedefineforclassfields",
       "tsconfig_include"
     ],
+    "1": [
+      "src_model",
+      "src_model_buildsharepayload",
+      "src_model_checkin",
+      "src_model_iscomfortcard",
+      "src_model_isknowntriggerarray",
+      "src_model_isrecord",
+      "src_model_isstringarray",
+      "src_model_istext",
+      "src_model_istimestamp",
+      "src_model_iswholenumber",
+      "src_model_makecard",
+      "src_model_makesession",
+      "src_model_parseimport",
+      "src_model_sharepayload",
+      "src_model_sharetext",
+      "src_model_test",
+      "src_model_uid",
+      "src_model_validcheckin",
+      "src_model_validsession",
+      "src_model_validsetting"
+    ],
     "2": [
+      "src_db",
+      "src_db_getcards",
+      "src_db_importcards",
+      "src_db_invalidlocalcard",
+      "src_db_localcards",
+      "src_db_makebackup",
+      "src_db_opendatabase",
+      "src_db_removecard",
+      "src_db_requestresult",
+      "src_db_savecard",
+      "src_main_loadcards",
+      "src_main_persist",
+      "src_main_showtoast",
+      "src_model_backuppayload",
+      "src_model_comfortcard"
+    ],
+    "3": [
       "package",
       "package_name",
       "package_private",
@@ -67,23 +79,23 @@
       "package_type",
       "package_version"
     ],
-    "3": [
-      "src_db_savecard",
+    "4": [
       "src_main",
       "src_main_appelement",
       "src_main_cards",
       "src_main_closedialog",
       "src_main_downloadjson",
       "src_main_draft",
-      "src_main_formattimer",
       "src_main_invalidcards",
       "src_main_opendialog",
-      "src_main_persist",
-      "src_main_showtoast",
-      "src_main_starttimer",
-      "src_main_syncdraft"
+      "src_main_syncdraft",
+      "src_model_default_settings",
+      "src_model_max_baseline_minutes",
+      "src_model_session",
+      "src_model_setting",
+      "src_model_triggers"
     ],
-    "4": [
+    "5": [
       "axe_core_playwright",
       "package_devdependencies",
       "package_devdependencies_axe_core_playwright",
@@ -97,20 +109,6 @@
       "typescript",
       "vite",
       "vitest"
-    ],
-    "5": [
-      "src_db",
-      "src_db_getcards",
-      "src_db_importcards",
-      "src_db_invalidlocalcard",
-      "src_db_localcards",
-      "src_db_makebackup",
-      "src_db_opendatabase",
-      "src_db_removecard",
-      "src_db_requestresult",
-      "src_main_loadcards",
-      "src_model_backuppayload",
-      "src_model_comfortcard"
     ],
     "6": [
       "src_main_activesession",
@@ -140,17 +138,20 @@
       "src_main_updateofflinebanner"
     ],
     "8": [
+      "src_main_checkinview",
+      "src_main_formattimer",
+      "src_main_startdialog",
+      "src_main_starttimer",
+      "src_main_symptomchoices",
+      "src_model_elapsedms"
+    ],
+    "9": [
       "vite_config",
+      "vite_config_deploymentcontrolfiles",
       "vite_config_filesin",
       "vite_config_publicurl",
       "vite_config_root",
       "vite_config_versionedpwa"
-    ],
-    "9": [
-      "src_main_checkinview",
-      "src_main_startdialog",
-      "src_main_symptomchoices",
-      "src_model_elapsedms"
     ],
     "10": [
       "src_main_sessionsview",
@@ -158,36 +159,37 @@
       "src_model_longestsession"
     ],
     "11": [
+      "promises",
+      "tests_product_spec"
+    ],
+    "12": [
       "scripts_verify_build",
       "scripts_verify_build_parsedmanifest"
     ],
-    "12": [
+    "13": [
       "playwright_config"
     ],
-    "13": [
+    "14": [
       "public_sw"
     ],
-    "14": [
+    "15": [
       "src_vite_env_d"
     ],
-    "15": [
-      "tests_accessibility_spec"
-    ],
     "16": [
-      "tests_product_spec"
+      "tests_accessibility_spec"
     ]
   },
   "cohesion": {
-    "0": 0.2,
-    "1": 0.09090909090909091,
-    "2": 0.14285714285714285,
-    "3": 0.18681318681318682,
-    "4": 0.15384615384615385,
-    "5": 0.24242424242424243,
+    "0": 0.09090909090909091,
+    "1": 0.2894736842105263,
+    "2": 0.2,
+    "3": 0.14285714285714285,
+    "4": 0.14285714285714285,
+    "5": 0.15384615384615385,
     "6": 0.3484848484848485,
     "7": 0.23636363636363636,
-    "8": 0.4,
-    "9": 0.5,
+    "8": 0.3333333333333333,
+    "9": 0.3333333333333333,
     "10": 0.6666666666666666,
     "11": 1.0,
     "12": 1.0,
@@ -233,13 +235,13 @@
       "degree": 10
     },
     {
-      "id": "src_main_shell",
-      "label": "shell()",
+      "id": "src_main_sessionview",
+      "label": "sessionView()",
       "degree": 10
     },
     {
-      "id": "src_main_sessionview",
-      "label": "sessionView()",
+      "id": "src_main_shell",
+      "label": "shell()",
       "degree": 10
     },
     {
@@ -272,19 +274,8 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "startTimer()",
-      "target": "elapsedMs()",
-      "source_files": [
-        "src/main.ts",
-        "src/model.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
-      "source": "sessionView()",
-      "target": "elapsedMs()",
+      "source": "endedSessionView()",
+      "target": "finishedSessionMinutes()",
       "source_files": [
         "src/main.ts",
         "src/model.ts"
@@ -295,6 +286,17 @@
     },
     {
       "source": "cardSlip()",
+      "target": "longestSession()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "cardView()",
       "target": "longestSession()",
       "source_files": [
         "src/main.ts",
