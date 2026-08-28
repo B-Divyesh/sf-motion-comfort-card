@@ -1,62 +1,45 @@
 {
   "communities": {
     "0": [
-      "axe_core_playwright",
-      "package",
-      "package_devdependencies",
-      "package_devdependencies_axe_core_playwright",
-      "package_devdependencies_playwright_test",
-      "package_devdependencies_types_node",
-      "package_devdependencies_typescript",
-      "package_devdependencies_vite",
-      "package_devdependencies_vitest",
-      "package_name",
-      "package_private",
-      "package_scripts",
-      "package_scripts_build",
-      "package_scripts_dev",
-      "package_scripts_lint",
-      "package_scripts_preview",
-      "package_scripts_test",
-      "package_scripts_test_a11y",
-      "package_scripts_test_e2e",
-      "package_scripts_verify_build",
-      "package_type",
-      "package_version",
-      "playwright_test",
-      "types_node",
-      "typescript",
-      "vite",
-      "vitest"
+      "src_main",
+      "src_main_activesession",
+      "src_main_appelement",
+      "src_main_cards",
+      "src_main_closedialog",
+      "src_main_defaultdraft",
+      "src_main_downloadjson",
+      "src_main_draft",
+      "src_main_findcard",
+      "src_main_findinvalidcard",
+      "src_main_finishroute",
+      "src_main_formattimer",
+      "src_main_invalidcards",
+      "src_main_isdemomode",
+      "src_main_legalview",
+      "src_main_loadcards",
+      "src_main_makedemocard",
+      "src_main_navigate",
+      "src_main_opendialog",
+      "src_main_persist",
+      "src_main_render",
+      "src_main_routeparts",
+      "src_main_sessionsview",
+      "src_main_setmeta",
+      "src_main_showtoast",
+      "src_main_startdialog",
+      "src_main_starttimer",
+      "src_main_symptomchoices",
+      "src_main_syncdraft",
+      "src_main_updateofflinebanner",
+      "src_model_default_settings",
+      "src_model_elapsedms",
+      "src_model_finishedsessionminutes",
+      "src_model_longestsession",
+      "src_model_max_baseline_minutes",
+      "src_model_session",
+      "src_model_triggers"
     ],
     "1": [
-      "src_model",
-      "src_model_buildsharepayload",
-      "src_model_checkin",
-      "src_model_default_settings",
-      "src_model_iscomfortcard",
-      "src_model_isknowntriggerarray",
-      "src_model_isrecord",
-      "src_model_isstringarray",
-      "src_model_istext",
-      "src_model_istimestamp",
-      "src_model_iswholenumber",
-      "src_model_makecard",
-      "src_model_makesession",
-      "src_model_max_baseline_minutes",
-      "src_model_parseimport",
-      "src_model_session",
-      "src_model_setting",
-      "src_model_sharepayload",
-      "src_model_sharetext",
-      "src_model_test",
-      "src_model_triggers",
-      "src_model_uid",
-      "src_model_validcheckin",
-      "src_model_validsession",
-      "src_model_validsetting"
-    ],
-    "2": [
       "ref_dom",
       "ref_dom_iterable",
       "ref_es2022",
@@ -80,7 +63,80 @@
       "tsconfig_compileroptions_usedefineforclassfields",
       "tsconfig_include"
     ],
+    "2": [
+      "src_model",
+      "src_model_buildsharepayload",
+      "src_model_checkin",
+      "src_model_iscomfortcard",
+      "src_model_isknowntriggerarray",
+      "src_model_isrecord",
+      "src_model_isstringarray",
+      "src_model_istext",
+      "src_model_istimestamp",
+      "src_model_iswholenumber",
+      "src_model_makecard",
+      "src_model_makesession",
+      "src_model_parseimport",
+      "src_model_setting",
+      "src_model_sharepayload",
+      "src_model_sharetext",
+      "src_model_test",
+      "src_model_uid",
+      "src_model_validcheckin",
+      "src_model_validsession",
+      "src_model_validsetting"
+    ],
     "3": [
+      "src_main_cardslip",
+      "src_main_cardview",
+      "src_main_checkinview",
+      "src_main_createview",
+      "src_main_decisionpanel",
+      "src_main_deletedialog",
+      "src_main_endedsessionview",
+      "src_main_escapehtml",
+      "src_main_homeview",
+      "src_main_icon",
+      "src_main_notfoundview",
+      "src_main_recoveryview",
+      "src_main_routehref",
+      "src_main_sessionview",
+      "src_main_sharedialog",
+      "src_main_shell",
+      "src_main_stopdialog"
+    ],
+    "4": [
+      "package",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_preview",
+      "package_scripts_test",
+      "package_scripts_test_a11y",
+      "package_scripts_test_e2e",
+      "package_scripts_verify_build",
+      "package_type",
+      "package_version"
+    ],
+    "5": [
+      "axe_core_playwright",
+      "package_devdependencies",
+      "package_devdependencies_axe_core_playwright",
+      "package_devdependencies_playwright_test",
+      "package_devdependencies_types_node",
+      "package_devdependencies_typescript",
+      "package_devdependencies_vite",
+      "package_devdependencies_vitest",
+      "playwright_test",
+      "types_node",
+      "typescript",
+      "vite",
+      "vitest"
+    ],
+    "6": [
       "src_db",
       "src_db_getcards",
       "src_db_importcards",
@@ -91,70 +147,10 @@
       "src_db_removecard",
       "src_db_requestresult",
       "src_db_savecard",
-      "src_main_persist",
-      "src_main_showtoast",
       "src_model_backuppayload",
       "src_model_comfortcard"
     ],
-    "4": [
-      "src_main_cardslip",
-      "src_main_createview",
-      "src_main_decisionpanel",
-      "src_main_defaultdraft",
-      "src_main_endedsessionview",
-      "src_main_homeview",
-      "src_main_icon",
-      "src_main_notfoundview",
-      "src_main_recoveryview",
-      "src_main_routehref",
-      "src_main_sessionview",
-      "src_main_shell",
-      "src_main_stopdialog"
-    ],
-    "5": [
-      "src_main",
-      "src_main_appelement",
-      "src_main_cards",
-      "src_main_closedialog",
-      "src_main_downloadjson",
-      "src_main_draft",
-      "src_main_finishroute",
-      "src_main_invalidcards",
-      "src_main_opendialog",
-      "src_main_setmeta",
-      "src_main_syncdraft",
-      "src_main_updateofflinebanner"
-    ],
-    "6": [
-      "src_main_findcard",
-      "src_main_findinvalidcard",
-      "src_main_isdemomode",
-      "src_main_legalview",
-      "src_main_loadcards",
-      "src_main_makedemocard",
-      "src_main_navigate",
-      "src_main_render",
-      "src_main_routeparts"
-    ],
     "7": [
-      "src_main_activesession",
-      "src_main_cardview",
-      "src_main_deletedialog",
-      "src_main_escapehtml",
-      "src_main_sessionsview",
-      "src_main_sharedialog",
-      "src_model_finishedsessionminutes",
-      "src_model_longestsession"
-    ],
-    "8": [
-      "src_main_checkinview",
-      "src_main_formattimer",
-      "src_main_startdialog",
-      "src_main_starttimer",
-      "src_main_symptomchoices",
-      "src_model_elapsedms"
-    ],
-    "9": [
       "vite_config",
       "vite_config_filesin",
       "vite_config_nonshellfiles",
@@ -162,48 +158,48 @@
       "vite_config_root",
       "vite_config_versionedpwa"
     ],
-    "10": [
-      "promises",
-      "tests_claims_spec",
-      "tests_claims_spec_enterrealapp",
-      "tests_claims_spec_makerealcard",
-      "tests_product_spec"
-    ],
-    "11": [
+    "8": [
       "scripts_verify_build",
       "scripts_verify_build_parsedhostconfig",
       "scripts_verify_build_parsedmanifest"
     ],
-    "12": [
+    "9": [
+      "tests_claims_spec",
+      "tests_claims_spec_enterrealapp",
+      "tests_claims_spec_makerealcard"
+    ],
+    "10": [
       "playwright_config"
     ],
-    "13": [
+    "11": [
       "public_sw"
     ],
-    "14": [
+    "12": [
       "src_vite_env_d"
     ],
-    "15": [
+    "13": [
       "tests_accessibility_spec"
+    ],
+    "14": [
+      "tests_product_spec"
     ]
   },
   "cohesion": {
-    "0": 0.07407407407407407,
-    "1": 0.2,
-    "2": 0.09090909090909091,
-    "3": 0.21978021978021978,
-    "4": 0.358974358974359,
-    "5": 0.19696969696969696,
-    "6": 0.3333333333333333,
-    "7": 0.35714285714285715,
-    "8": 0.3333333333333333,
-    "9": 0.3333333333333333,
-    "10": 0.4,
-    "11": 0.6666666666666666,
+    "0": 0.0915915915915916,
+    "1": 0.09090909090909091,
+    "2": 0.26666666666666666,
+    "3": 0.34558823529411764,
+    "4": 0.14285714285714285,
+    "5": 0.15384615384615385,
+    "6": 0.2727272727272727,
+    "7": 0.3333333333333333,
+    "8": 0.6666666666666666,
+    "9": 0.6666666666666666,
+    "10": 1.0,
+    "11": 1.0,
     "12": 1.0,
     "13": 1.0,
-    "14": 1.0,
-    "15": 1.0
+    "14": 1.0
   },
   "gods": [
     {
@@ -212,13 +208,13 @@
       "degree": 18
     },
     {
-      "id": "tsconfig_compileroptions",
-      "label": "compilerOptions",
+      "id": "src_main_icon",
+      "label": "icon()",
       "degree": 14
     },
     {
-      "id": "src_main_icon",
-      "label": "icon()",
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
       "degree": 14
     },
     {
@@ -242,13 +238,13 @@
       "degree": 12
     },
     {
-      "id": "src_main_escapehtml",
-      "label": "escapeHtml()",
+      "id": "src_main_sessionview",
+      "label": "sessionView()",
       "degree": 11
     },
     {
-      "id": "src_main_sessionview",
-      "label": "sessionView()",
+      "id": "src_main_escapehtml",
+      "label": "escapeHtml()",
       "degree": 11
     },
     {
@@ -292,11 +288,11 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "endedSessionView()",
-      "target": "finishedSessionMinutes()",
+      "source": "persist()",
+      "target": "saveCard()",
       "source_files": [
         "src/main.ts",
-        "src/model.ts"
+        "src/db.ts"
       ],
       "confidence": "EXTRACTED",
       "relation": "calls",
