@@ -23,6 +23,10 @@ candidate `a0635577582739f6cd42d93d5a88f7252e072de5`.
   manifest `start_url`, precaches the current hashed app bundle, and fails the
   build if the manifest and worker versions differ or a placeholder remains.
   Production source maps are no longer shipped.
+- Static Web Apps response policy now lives in source: hashed assets and icons
+  receive immutable one-year caching, the manifest is served as
+  `application/manifest+json`, and a restrictive Permissions-Policy disables
+  camera, geolocation, microphone, and payment features.
 - Added regression coverage for the exact malformed-backup payload, no-write
   guarantee, malformed local-record recovery/removal, baseline boundary on
   desktop and 390px mobile, and a real old-to-new service-worker update that
@@ -45,7 +49,7 @@ Results from the final local run on 2026-08-28:
 - `npm test`: 6/6 Vitest tests passed.
 - `npm run lint`: TypeScript `--noEmit` passed.
 - `npm run build`: passed and produced `dist/index.html`; the built PWA version
-  was `comfort-card-da463c02721e`. `verify:build` confirmed matching manifest
+  was `comfort-card-0d99f9730963`. `verify:build` confirmed matching manifest
   and worker versions, resolved placeholders, and precaching of the current JS
   bundle. JS is 41.78 KB raw / 13.70 KB gzip; CSS is 25.63 KB raw / 6.21 KB
   gzip; no font payload or source maps are shipped.
