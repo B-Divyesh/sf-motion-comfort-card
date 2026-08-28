@@ -3,7 +3,7 @@
   "name": "Comfort Card",
   "short_name": "Comfort Card",
   "description": "Private game-specific motion comfort plans and 15-minute session check-ins.",
-  "start_url": "/?v=1",
+  "start_url": "/?v=__BUILD_VERSION__",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",

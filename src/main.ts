@@ -1,5 +1,5 @@
 import './styles.css';
-import { getCards, importCards, makeBackup, removeCard, saveCard } from './db';
+import { getCards, importCards, makeBackup, removeCard, saveCard, type InvalidLocalCard } from './db';
 import {
   DEFAULT_SETTINGS,
   TRIGGERS,
@@ -9,6 +9,7 @@ import {
   longestSession,
   makeCard,
   makeSession,
+  MAX_BASELINE_MINUTES,
   parseImport,
   shareText,
   type ComfortCard,
@@ -30,9 +31,11 @@ if (!appElement) throw new Error('App root is missing.');
 const app: HTMLDivElement = appElement;
 
 let cards: ComfortCard[] = [];
+let invalidCards: InvalidLocalCard[] = [];
 let storageError = '';
 let draft: Draft | null = null;
 let formError = '';
+let baselineError = '';
 let toastTimer = 0;
 let timerInterval = 0;
 let afterCheckIn = false;
@@ -108,7 +111,7 @@ function homeView(): string {
       </div>
       <figure class="hero-art"><picture><source type="image/webp" srcset="/assets/comfort-card-hero-720.webp 720w, /assets/comfort-card-hero-1200.webp 1200w" sizes="(max-width: 760px) 100vw, 46vw"><img src="/assets/comfort-card-hero-1200.webp" width="1200" height="800" fetchpriority="high" alt="Risograph collage of a game controller, a large pause button, and a calm horizon." /></picture><figcaption>Pause belongs in the plan.</figcaption></figure>
     </section>
-    ${storageError ? `<section class="error-state" role="alert"><p class="eyebrow">Local storage problem</p><h2>Your cards could not be opened.</h2><p>${escapeHtml(storageError)}</p><button class="button" data-action="retry-storage">Try again</button></section>` : list}
+    ${storageError ? `<section class="error-state" role="alert"><p class="eyebrow">Local storage problem</p><h2>Your cards could not be opened.</h2><p>${escapeHtml(storageError)}</p><button class="button" data-action="retry-storage">Try again</button></section>` : `${invalidCards.length ? `<section class="storage-error" role="alert"><p class="eyebrow danger-text">Saved-data recovery</p><h2>${invalidCards.length === 1 ? 'One saved card needs recovery.' : `${invalidCards.length} saved cards need recovery.`}</h2><p>These records cannot be opened safely because they are incomplete. You can remove them from this browser; your other cards are still available.</p><div class="recovery-actions">${invalidCards.map((record, index) => `<a class="button" href="#card/${encodeURIComponent(record.routeId ?? `recovery-${index}`)}">Review ${escapeHtml(record.label)}</a>`).join('')}</div></section>` : ''}${list}`}
     <section class="how" id="how-it-works" aria-labelledby="how-title">
       <p class="eyebrow">Three small moves</p><h2 id="how-title">Plan, notice, keep what helped.</h2>
       <ol class="steps"><li><span>01</span><div><h3>Name the motion</h3><p>Mark the visual patterns you already know, without needing to diagnose anything.</p></div></li><li><span>02</span><div><h3>Order your settings</h3><p>Put the most promising game options first and check them off as you try them.</p></div></li><li><span>03</span><div><h3>Check in, or stop</h3><p>Notice symptoms every 15 minutes. Pause or stop at any time—no streaks, pressure, or scoring.</p></div></li></ol>
@@ -143,7 +146,7 @@ function createView(): string {
     <form id="create-card" class="composer" novalidate>
       <section class="form-section" aria-labelledby="game-heading"><div class="step-no">01</div><div><h2 id="game-heading">Which game?</h2><p class="section-note">Only the game name is required.</p>
         <div class="field-row"><label class="field"><span>Game name <em>Required</em></span><input name="game" required maxlength="80" autocomplete="off" value="${escapeHtml(formDraft.game)}" aria-describedby="game-error" /><small id="game-error" class="field-error">${formError}</small></label><label class="field"><span>Platform <small>Optional</small></span><input name="platform" maxlength="40" autocomplete="off" value="${escapeHtml(formDraft.platform)}" placeholder="PC, PlayStation, Switch…" /></label></div>
-        <label class="field compact"><span>Usual comfortable play time <small>Optional</small></span><span class="number-field"><input name="baselineMinutes" type="number" min="0" max="600" inputmode="numeric" value="${formDraft.baselineMinutes || ''}" /><span>minutes</span></span><small>Use 0 if you do not have a baseline yet.</small></label>
+        <label class="field compact"><span>Usual comfortable play time <small>Optional</small></span><span class="number-field"><input name="baselineMinutes" type="number" min="0" max="${MAX_BASELINE_MINUTES}" step="1" inputmode="numeric" value="${formDraft.baselineMinutes || ''}" aria-describedby="baseline-help baseline-error" aria-invalid="${baselineError ? 'true' : 'false'}" /><span>minutes</span></span><small id="baseline-help">Use 0 if you do not have a baseline yet. Maximum ${MAX_BASELINE_MINUTES} minutes.</small><small id="baseline-error" class="field-error">${baselineError}</small></label>
       </div></section>
       <section class="form-section" aria-labelledby="trigger-heading"><div class="step-no">02</div><div><h2 id="trigger-heading">What motion do you notice?</h2><p class="section-note">Choose any familiar patterns. It is fine to leave this blank.</p>
         <fieldset class="choice-grid"><legend class="visually-hidden">Motion triggers</legend>${TRIGGERS.map((trigger) => `<label class="choice-tile"><input type="checkbox" name="triggers" value="${trigger.id}" ${formDraft.triggers.includes(trigger.id) ? 'checked' : ''}/><span class="choice-box">${icon('check')}</span><span>${trigger.label}</span></label>`).join('')}</fieldset>
@@ -158,6 +161,15 @@ function createView(): string {
 
 function findCard(id: string): ComfortCard | undefined {
   return cards.find((card) => card.id === id);
+}
+
+function findInvalidCard(id: string): { record: InvalidLocalCard; index: number } | undefined {
+  const index = invalidCards.findIndex((record, recordIndex) => record.routeId === id || (!record.routeId && id === `recovery-${recordIndex}`));
+  return index === -1 ? undefined : { record: invalidCards[index], index };
+}
+
+function recoveryView(record: InvalidLocalCard, index: number): string {
+  return shell(`<section class="error-state"><p class="eyebrow danger-text">Saved-data recovery</p><h1>This card cannot be opened safely.</h1><p><strong>${escapeHtml(record.label)}</strong> has incomplete saved data, so Comfort Card kept it out of the normal card view. Removing this broken record will not affect your other cards.</p><div class="dialog-actions"><button class="button button-danger" type="button" data-action="delete-invalid-card" data-index="${index}">${icon('trash')} Remove broken record</button><a class="button" href="/">Keep other cards</a></div></section>`);
 }
 
 function activeSession(card: ComfortCard): Session | undefined {
@@ -265,17 +277,31 @@ function formatTimer(ms: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
+function routeParts(): string[] | null {
+  try {
+    return location.hash.slice(1).split('/').map(decodeURIComponent);
+  } catch {
+    return null;
+  }
+}
+
 function render(): void {
   window.clearInterval(timerInterval);
   const path = location.pathname;
   if (path.startsWith('/privacy')) app.innerHTML = legalView('privacy');
   else if (path.startsWith('/terms')) app.innerHTML = legalView('terms');
   else {
-    const parts = location.hash.slice(1).split('/').map(decodeURIComponent);
+    const parts = routeParts();
+    if (!parts) {
+      app.innerHTML = notFoundView();
+      updateOfflineBanner();
+      return;
+    }
     if (parts[0] === 'new') app.innerHTML = createView();
     else if (parts[0] === 'card') {
       const card = findCard(parts[1]);
-      app.innerHTML = card ? cardView(card) : notFoundView();
+      const invalid = card ? undefined : findInvalidCard(parts[1]);
+      app.innerHTML = card ? cardView(card) : invalid ? recoveryView(invalid.record, invalid.index) : notFoundView();
     } else if (parts[0] === 'session') {
       const card = findCard(parts[1]);
       const session = card?.sessions.find((item) => item.id === parts[2]);
@@ -339,16 +365,24 @@ function downloadJson(filename: string, data: unknown): void {
   URL.revokeObjectURL(url);
 }
 
-function syncDraft(): void {
+function syncDraft(): boolean {
   const form = document.querySelector<HTMLFormElement>('#create-card');
-  if (!form || !draft) return;
+  if (!form || !draft) return false;
   const data = new FormData(form);
+  const rawBaseline = String(data.get('baselineMinutes') ?? '').trim();
+  const baselineMinutes = rawBaseline === '' ? 0 : Number(rawBaseline);
   draft.game = String(data.get('game') ?? '');
   draft.platform = String(data.get('platform') ?? '');
-  draft.baselineMinutes = Number(data.get('baselineMinutes')) || 0;
   draft.triggers = data.getAll('triggers').map(String);
   draft.customTrigger = String(data.get('customTrigger') ?? '');
   draft.settings = draft.settings.map((setting) => ({ ...setting, enabled: data.has(`setting-${setting.id}`) }));
+  if (!Number.isInteger(baselineMinutes) || baselineMinutes < 0 || baselineMinutes > MAX_BASELINE_MINUTES) {
+    baselineError = `Enter a whole number from 0 to ${MAX_BASELINE_MINUTES} minutes.`;
+    return false;
+  }
+  baselineError = '';
+  draft.baselineMinutes = baselineMinutes;
+  return true;
 }
 
 async function persist(card: ComfortCard, message = 'Saved on this device.'): Promise<void> {
@@ -363,7 +397,11 @@ app.addEventListener('submit', async (event) => {
   const form = event.target as HTMLFormElement;
   try {
     if (form.id === 'create-card') {
-      syncDraft();
+      if (!syncDraft()) {
+        render();
+        document.querySelector<HTMLInputElement>('input[name="baselineMinutes"]')?.focus();
+        return;
+      }
       if (!draft?.game.trim()) {
         formError = 'Enter the game name to make this card.';
         render();
@@ -414,7 +452,11 @@ app.addEventListener('click', async (event) => {
   const action = target.dataset.action;
   try {
     if (action === 'move-setting' && draft) {
-      syncDraft();
+      if (!syncDraft()) {
+        render();
+        document.querySelector<HTMLInputElement>('input[name="baselineMinutes"]')?.focus();
+        return;
+      }
       const from = Number(target.dataset.index);
       const to = from + Number(target.dataset.direction);
       [draft.settings[from], draft.settings[to]] = [draft.settings[to], draft.settings[from]];
@@ -425,7 +467,8 @@ app.addEventListener('click', async (event) => {
     if (action === 'share') openDialog('#share-dialog');
     if (action === 'confirm-delete') openDialog('#delete-dialog');
     if (action === 'stop-now') {
-      const parts = location.hash.slice(1).split('/').map(decodeURIComponent);
+      const parts = routeParts();
+      if (!parts) return;
       const card = findCard(parts[1]);
       const session = card?.sessions.find((item) => item.id === parts[2]);
       if (card && session && !session.pausedAt) {
@@ -482,6 +525,16 @@ app.addEventListener('click', async (event) => {
       render();
       showToast('Card deleted from this device.');
     }
+    if (action === 'delete-invalid-card') {
+      const index = Number(target.dataset.index);
+      const record = invalidCards[index];
+      if (!record) return;
+      await removeCard(record.key);
+      invalidCards = invalidCards.filter((_, itemIndex) => itemIndex !== index);
+      location.hash = '';
+      render();
+      showToast('Broken saved record removed from this device.');
+    }
     if (action === 'backup') {
       if (!cards.length) { showToast('There are no cards to back up yet.'); return; }
       downloadJson(`comfort-card-backup-${new Date().toISOString().slice(0, 10)}.json`, makeBackup(cards));
@@ -516,7 +569,9 @@ void deferredInstall;
 
 async function loadCards(): Promise<void> {
   try {
-    cards = await getCards();
+    const loaded = await getCards();
+    cards = loaded.cards;
+    invalidCards = loaded.invalidCards;
     storageError = '';
   } catch (error) {
     storageError = error instanceof Error ? error.message : 'Local storage is unavailable.';
@@ -526,14 +581,22 @@ async function loadCards(): Promise<void> {
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.register('/sw.js').then((registration) => {
+    const wasControlled = Boolean(navigator.serviceWorker.controller);
+    const showUpdate = () => {
+      const update = document.querySelector<HTMLElement>('#update-toast');
+      if (update) update.hidden = false;
+    };
+    if (registration.waiting && wasControlled) showUpdate();
     registration.addEventListener('updatefound', () => {
       const worker = registration.installing;
       worker?.addEventListener('statechange', () => {
         if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-          const update = document.querySelector<HTMLElement>('#update-toast');
-          if (update) update.hidden = false;
+          showUpdate();
         }
       });
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (wasControlled) showUpdate();
     });
   }).catch(() => { /* The app remains usable without installation support. */ });
 }

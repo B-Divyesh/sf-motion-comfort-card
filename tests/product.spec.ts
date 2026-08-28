@@ -63,3 +63,90 @@ test('reloads offline after the app shell is cached', async ({ page, context }) 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find a steadier way into the game.');
   await expect(page.getByText('Offline mode · your saved cards still work')).toBeVisible();
 });
+
+test('rejects malformed full backups before they reach local storage', async ({ page }) => {
+  await page.goto('/');
+  const malformed = {
+    kind: 'comfort-card-backup', version: 1, exportedAt: new Date().toISOString(), cards: [{
+      id: 'bad-id', game: 'Broken Backup', platform: 'PC', baselineMinutes: 10,
+      triggers: 'not-an-array', customTrigger: '',
+      settings: [{ id: 'x', label: 'Setting', tip: 'tip', enabled: true, tried: false }], sessions: [],
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+    }],
+  };
+  await page.locator('#import-file').setInputFiles({ name: 'malformed-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(malformed)) });
+  await expect(page.getByText('This backup contains an invalid card. Nothing was restored.')).toBeVisible();
+  await expect(page.getByText('Broken Backup')).not.toBeVisible();
+  const stored = await page.evaluate(async () => new Promise<unknown[]>((resolve, reject) => {
+    const request = indexedDB.open('comfort-card-local');
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const transaction = request.result.transaction('cards');
+      const getAll = transaction.objectStore('cards').getAll();
+      getAll.onsuccess = () => resolve(getAll.result);
+      getAll.onerror = () => reject(getAll.error);
+    };
+  }));
+  expect(stored).toEqual([]);
+});
+
+test('quarantines and lets the player remove an already-malformed saved card', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async () => new Promise<void>((resolve, reject) => {
+    const request = indexedDB.open('comfort-card-local');
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const transaction = request.result.transaction('cards', 'readwrite');
+      transaction.objectStore('cards').put({ id: 'bad-id', game: 'Broken Backup', triggers: 'not-an-array' });
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    };
+  }));
+  await expect.poll(() => page.evaluate(async () => new Promise<number>((resolve, reject) => {
+    const request = indexedDB.open('comfort-card-local');
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const getAll = request.result.transaction('cards').objectStore('cards').getAll();
+      getAll.onsuccess = () => resolve(getAll.result.length);
+      getAll.onerror = () => reject(getAll.error);
+    };
+  }))).toBe(1);
+  await page.reload({ waitUntil: 'networkidle' });
+  await expect(page.getByText('One saved card needs recovery.')).toBeVisible();
+  await page.getByRole('link', { name: 'Review Broken Backup' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This card cannot be opened safely.');
+  await page.getByRole('button', { name: 'Remove broken record' }).click();
+  await expect(page.getByText('One saved card needs recovery.')).not.toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('rejects a baseline outside the advertised 0–600 minute range', async ({ page }) => {
+  await page.goto('/#new');
+  await page.getByLabel('Game name Required').fill('Boundary Game');
+  await page.getByLabel('Usual comfortable play time Optional').fill('9999');
+  await page.getByRole('button', { name: 'Make this card' }).click();
+  await expect(page.getByText('Enter a whole number from 0 to 600 minutes.')).toBeVisible();
+  await expect(page.getByLabel('Usual comfortable play time Optional')).toBeFocused();
+  await page.getByLabel('Usual comfortable play time Optional').fill('600');
+  await page.getByRole('button', { name: 'Make this card' }).click();
+  await expect(page.getByText('600 baseline minutes')).toBeVisible();
+});
+
+test('shows the update action when a changed service worker is installed', async ({ page }) => {
+  test.skip(test.info().project.name === 'mobile-390', 'The update transition is exercised once against the shared production build.');
+  await page.goto('/');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  const { readFile, writeFile } = await import('node:fs/promises');
+  const original = await readFile('dist/sw.js', 'utf8');
+  try {
+    await writeFile('dist/sw.js', original.replace(/const VERSION = '[^']+';/, "const VERSION = 'comfort-card-test-update';"));
+    await page.evaluate(async () => { await (await navigator.serviceWorker.getRegistration())?.update(); });
+    await expect(page.getByText('A fresh version is ready.')).toBeVisible();
+  } finally {
+    await writeFile('dist/sw.js', original);
+  }
+});

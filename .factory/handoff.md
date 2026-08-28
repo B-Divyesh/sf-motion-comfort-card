@@ -1,68 +1,78 @@
-# Comfort Card v1 handoff — independent verification: FAIL
+# Comfort Card repair handoff
 
-**Verification status: FAIL** for candidate
-`a0635577582739f6cd42d93d5a88f7252e072de5` at
-https://motion-comfort-card.sociobot.in (verified 2026-08-28).
+**Verification status: PASS locally** — repair of verifier report 1 for base
+candidate `a0635577582739f6cd42d93d5a88f7252e072de5`.
 
-The deployed files exactly matched the candidate production build, and the
-normal workflow, tests, offline reload, accessibility checks, responsive
-views, and privacy/network checks passed. The candidate is not acceptable
-because Import accepts and persists malformed full backups, then crashes when
-the user opens the imported card (`e.triggers.map is not a function`) with no
-in-product recovery/delete path. The input also accepts a 9999-minute baseline
-despite its stated 600-minute maximum, and service-worker cache/update
-versioning is fixed rather than build-derived.
+## What changed
 
-See `.factory/verification-1.md` for exact reproduction, complete evidence,
-headers/bundle checks, and required fixes. Re-verification is required after
-those fixes; do not treat the historical build notes below as a release PASS.
+- Full JSON backups now undergo strict, recursive validation before any local
+  write. Every card, setting, session, check-in, date, id, boolean, symptom
+  value, trigger list, and 0–600 minute baseline is checked. A bad card rejects
+  the entire backup with “Nothing was restored.” The restore write is a single
+  IndexedDB transaction.
+- Existing malformed records from the previously vulnerable importer are
+  quarantined from normal card routes. The home screen presents a recovery
+  notice; opening its review link provides an explicit, scoped removal action.
+  A malformed card can no longer crash `cardView()` or strand the user.
+- The baseline field now enforces a whole-number range of 0–600 in application
+  logic, announces the error, focuses the field, and preserves the rest of the
+  draft while it is corrected. Model construction also caps programmatic input
+  at 600 and backup validation rejects larger values.
+- The production build now derives a content fingerprint after Vite writes its
+  files. It writes that fingerprint into the service-worker cache names and
+  manifest `start_url`, precaches the current hashed app bundle, and fails the
+  build if the manifest and worker versions differ or a placeholder remains.
+  Production source maps are no longer shipped.
+- Added regression coverage for the exact malformed-backup payload, no-write
+  guarantee, malformed local-record recovery/removal, baseline boundary on
+  desktop and 390px mobile, and a real old-to-new service-worker update that
+  displays the in-app update action.
 
----
-
-# Historical builder handoff
-
-## What was built
-
-Comfort Card is a complete static, offline-first PWA for making private, per-game motion-comfort plans. The shipped path covers:
-
-- Empty-state onboarding and a three-part card composer for game/platform, familiar triggers, baseline play time, and an ordered settings plan.
-- Eight practical visual-setting experiments with enable/disable and ordering controls, plus a per-game “tried” record.
-- IndexedDB persistence with resumed active sessions after reload or app close.
-- A real 15-minute session timer, pause/resume, check-in-early path, 0–4 symptom scale, trigger notes, optional private notes, increased-symptom caution, and an always-visible stop action.
-- Finished-session history and comparison to the user’s own baseline, without claims about medical benefit or game safety.
-- Clean text/JSON sharing that deliberately excludes symptom scores, timestamps, duration, and notes; separate full JSON backup/import for data ownership.
-- Offline app-shell and asset caching, versioned caches, offline fallback, install manifest, 192/512/maskable icons, and update-ready notice.
-- First-class loading, empty, invalid-import, missing-card, storage-error, offline, and deletion-confirmation states.
-- Static `/privacy/` and `/terms/` pages, no analytics, no remote runtime resources, and no payment path (the product is free).
-
-The visual system is an original “calm risograph field note” with a warm paper ground, teal/cobalt/coral inks, clipped paper forms, offset print edges, and a no-loop reduced-motion policy. The generated hero was reviewed, optimized to responsive 44 KB and 168 KB WebP files, and its prompt/model/date are recorded in `.factory/design.md` and `assets/src/`.
-
-## How to run and verify
+## Run and verify
 
 ```sh
 npm ci
 npm test
+npm run lint
 npm run build
 npm run test:e2e
+npm run test:a11y
 ```
 
-Production output is exactly `dist/`, with `dist/index.html` at its root.
+Results from the final local run on 2026-08-28:
 
-Verification completed on 2026-08-28:
+- `npm ci`: 61 packages installed; 0 vulnerabilities.
+- `npm test`: 6/6 Vitest tests passed.
+- `npm run lint`: TypeScript `--noEmit` passed.
+- `npm run build`: passed and produced `dist/index.html`; the built PWA version
+  was `comfort-card-da463c02721e`. `verify:build` confirmed matching manifest
+  and worker versions, resolved placeholders, and precaching of the current JS
+  bundle. JS is 41.78 KB raw / 13.70 KB gzip; CSS is 25.63 KB raw / 6.21 KB
+  gzip; no font payload or source maps are shipped.
+- `npm run test:e2e`: 25 passed, 1 intentionally skipped. Chromium desktop and
+  390×844 mobile cover the complete card/session workflow, keyboard creation,
+  the import/recovery/baseline regressions, offline cached reload, and the
+  desktop service-worker old-to-new update/toast transition. The update test
+  runs once against the shared production build; mobile executes every other
+  workflow regression.
+- `npm run test:a11y`: 12/12 passed. Axe found no serious or critical issues
+  on home, composer, privacy, or terms in desktop and 390px views. The suite
+  also confirms one h1, skip-link keyboard focus, no horizontal overflow, and
+  no console/page errors on load.
 
-- `npm test`: 4/4 unit tests passed.
-- `npm run build`: passed with Vite 6.4.3.
-- `npm run test:e2e`: 18/18 passed in Chromium desktop and 390×844 mobile; creation, validation, keyboard path, session check-in/stop/history, privacy-safe sharing, persistence, offline reload, and legal pages covered.
-- Axe via Playwright: zero serious or critical violations on home, composer, privacy, and terms in both desktop and 390px projects.
-- Console smoke test: no console or page errors on load.
-- Offline: explicit `context.setOffline(true)` reload passed after the service worker cached the shell.
-- Production bundle: 37.8 KB JS (12.4 KB gzip), 25.6 KB CSS (6.2 KB gzip), no font payload, 44 KB mobile hero, 168 KB large hero.
-- Lighthouse 12.2.1 mobile on the final local production preview: Performance 100, Accessibility 100, Best Practices 100, SEO 100. LCP 1.5 s, total blocking time 20 ms, speed index 0.9 s, CLS 0.
-- Manual 390px visual review: no horizontal clipping; hero, empty state, creation controls, and footer stack as intended.
+## Product and privacy notes
 
-## Known gaps and next steps
+The artifact remains a static Vite TypeScript offline PWA. Data is still
+IndexedDB-only, exports remain local and user-directed, and no analytics,
+remote fonts, third-party runtime scripts, or payment paths were added. The
+existing visual thesis, original asset provenance, non-medical language, and
+all passing creation/session/share behavior were preserved.
 
-- Game setting names and availability vary. The app offers generic things to look for and never claims verified compatibility.
-- The 15-minute reminder is in-app; it catches up correctly after reopening, but v1 does not send background notifications when the PWA is closed.
-- Browser storage can be cleared by the browser or device. The full JSON backup is the recovery path; there is intentionally no cloud sync.
-- Success against the brief’s early-user outcome (30 minutes beyond baseline for at least half of 30 users without increased symptoms) requires an opt-in, privacy-preserving field study outside this codebase. No telemetry was added to manufacture that measurement.
+## Known limits
+
+- Game setting names continue to vary by game and platform; the product offers
+  general things to look for rather than compatibility promises.
+- The reminder is in-app and does not send background notifications once the
+  PWA is closed.
+- Browser storage may be cleared by the user or device; the full private JSON
+  backup remains the recovery path for valid records.

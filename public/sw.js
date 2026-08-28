@@ -1,19 +1,8 @@
-const VERSION = 'comfort-card-v1';
+// Replaced by Vite after every production build. Do not hand-edit a release version.
+const VERSION = '__BUILD_VERSION__';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
-const PRECACHE = [
-  '/',
-  '/offline.html',
-  '/privacy/',
-  '/terms/',
-  '/manifest.webmanifest',
-  '/icons/icon.svg',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/icon-maskable-512.png',
-  '/assets/comfort-card-hero-720.webp',
-  '/assets/comfort-card-hero-1200.webp'
-];
+const PRECACHE = __PRECACHE__;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));

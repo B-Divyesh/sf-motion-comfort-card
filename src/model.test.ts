@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildSharePayload, elapsedMs, makeCard, parseImport, shareText } from './model';
+import { buildSharePayload, elapsedMs, isComfortCard, makeCard, parseImport, shareText } from './model';
 
 describe('comfort card data', () => {
   it('keeps session history out of a shared card', () => {
@@ -30,5 +30,23 @@ describe('comfort card data', () => {
     expect(parsed.mode).toBe('share');
     expect(parsed.cards[0].game).toBe('Example Game');
     expect(parsed.cards[0].sessions).toEqual([]);
+  });
+
+  it('rejects an entire backup when a nested persisted field is malformed', () => {
+    const valid = makeCard({ game: 'Valid backup', baselineMinutes: 600 });
+    const malformed = { ...valid, id: 'bad-id', game: 'Broken backup', triggers: 'not-an-array' };
+    expect(() => parseImport({
+      kind: 'comfort-card-backup',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      cards: [valid, malformed],
+    })).toThrow('Nothing was restored');
+    expect(isComfortCard(malformed)).toBe(false);
+  });
+
+  it('enforces the 600-minute baseline limit in generated cards and backups', () => {
+    expect(makeCard({ game: 'Long game', baselineMinutes: 9999 }).baselineMinutes).toBe(600);
+    const invalidBackupCard = { ...makeCard({ game: 'Too long' }), baselineMinutes: 601 };
+    expect(() => parseImport({ kind: 'comfort-card-backup', version: 1, exportedAt: new Date().toISOString(), cards: [invalidBackupCard] })).toThrow('invalid card');
   });
 });

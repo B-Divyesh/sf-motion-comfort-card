@@ -73,6 +73,8 @@ export type BackupPayload = {
   cards: ComfortCard[];
 };
 
+export const MAX_BASELINE_MINUTES = 600;
+
 const uid = () => crypto.randomUUID();
 
 export function makeCard(input: {
@@ -88,7 +90,7 @@ export function makeCard(input: {
     id: uid(),
     game: input.game.trim(),
     platform: input.platform?.trim() ?? '',
-    baselineMinutes: Math.max(0, Math.round(input.baselineMinutes ?? 0)),
+    baselineMinutes: Math.min(MAX_BASELINE_MINUTES, Math.max(0, Math.round(input.baselineMinutes ?? 0))),
     triggers: input.triggers ?? [],
     customTrigger: input.customTrigger?.trim() ?? '',
     settings: input.settings ?? DEFAULT_SETTINGS.map((setting) => ({ ...setting, enabled: true, tried: false })),
@@ -146,14 +148,83 @@ export function shareText(card: ComfortCard): string {
   return `Comfort card for ${card.game}${card.platform ? ` (${card.platform})` : ''}\n\nThings I notice:\n${triggerLabels.length ? triggerLabels.map((label) => `• ${label}`).join('\n') : '• Still learning my triggers'}\n\nSettings to try:\n${plan}\n\nPersonal experiment only—not a safety guarantee or medical advice.`;
 }
 
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isText(value: unknown, maximum: number, required = false): value is string {
+  return typeof value === 'string' && value.length <= maximum && (!required || value.trim().length > 0);
+}
+
+function isStringArray(value: unknown, maximumItemLength = 100): value is string[] {
+  return Array.isArray(value) && value.every((item) => isText(item, maximumItemLength));
+}
+
+function isKnownTriggerArray(value: unknown): value is string[] {
+  const known = new Set<string>(TRIGGERS.map((trigger) => trigger.id));
+  return isStringArray(value, 40) && value.every((item) => known.has(item)) && new Set(value).size === value.length;
+}
+
+function isTimestamp(value: unknown): value is string {
+  return isText(value, 40, true) && Number.isFinite(Date.parse(value));
+}
+
+function isWholeNumber(value: unknown, minimum: number, maximum = Number.MAX_SAFE_INTEGER): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= minimum && value <= maximum;
 }
 
 function validSetting(value: unknown): value is Setting {
-  if (!value || typeof value !== 'object') return false;
-  const item = value as Partial<Setting>;
-  return typeof item.id === 'string' && typeof item.label === 'string' && typeof item.tip === 'string' && typeof item.enabled === 'boolean' && typeof item.tried === 'boolean';
+  if (!isRecord(value)) return false;
+  return isText(value.id, 100, true)
+    && isText(value.label, 200, true)
+    && isText(value.tip, 500, true)
+    && typeof value.enabled === 'boolean'
+    && typeof value.tried === 'boolean';
+}
+
+function validCheckIn(value: unknown): value is CheckIn {
+  if (!isRecord(value)) return false;
+  const felt = value.triggersFelt;
+  const allowedTriggers = new Set([...TRIGGERS.map((trigger) => trigger.id), 'custom']);
+  return isText(value.id, 100, true)
+    && isWholeNumber(value.elapsedMinutes, 0)
+    && isWholeNumber(value.symptomLevel, 0, 4)
+    && isStringArray(felt, 40)
+    && felt.every((trigger) => allowedTriggers.has(trigger))
+    && new Set(felt).size === felt.length
+    && isText(value.note, 500)
+    && isTimestamp(value.createdAt);
+}
+
+function validSession(value: unknown): value is Session {
+  if (!isRecord(value)) return false;
+  const status = value.status;
+  const endedAt = value.endedAt;
+  const pausedAt = value.pausedAt;
+  if (!isText(value.id, 100, true) || !isTimestamp(value.startedAt) || !isWholeNumber(value.pausedMs, 0) || !isWholeNumber(value.baselineSymptom, 0, 4) || (status !== 'active' && status !== 'ended') || !Array.isArray(value.checkIns) || !value.checkIns.every(validCheckIn)) return false;
+  if (status === 'ended' && !isTimestamp(endedAt)) return false;
+  if (status === 'active' && endedAt !== undefined) return false;
+  if (pausedAt !== undefined && (!isTimestamp(pausedAt) || status !== 'active')) return false;
+  return new Set(value.checkIns.map((checkIn) => checkIn.id)).size === value.checkIns.length;
+}
+
+/** Validates persisted cards as well as full-backup records before they reach UI code. */
+export function isComfortCard(value: unknown): value is ComfortCard {
+  if (!isRecord(value)) return false;
+  if (!isText(value.id, 100, true)
+    || !isText(value.game, 80, true)
+    || !isText(value.platform, 40)
+    || !isWholeNumber(value.baselineMinutes, 0, MAX_BASELINE_MINUTES)
+    || !isKnownTriggerArray(value.triggers)
+    || !isText(value.customTrigger, 100)
+    || !Array.isArray(value.settings)
+    || !value.settings.every(validSetting)
+    || !Array.isArray(value.sessions)
+    || !value.sessions.every(validSession)
+    || !isTimestamp(value.createdAt)
+    || !isTimestamp(value.updatedAt)) return false;
+  return new Set(value.settings.map((setting) => setting.id)).size === value.settings.length
+    && new Set(value.sessions.map((session) => session.id)).size === value.sessions.length;
 }
 
 export function parseImport(value: unknown): { cards: ComfortCard[]; mode: 'backup' | 'share' } {
@@ -162,18 +233,16 @@ export function parseImport(value: unknown): { cards: ComfortCard[]; mode: 'back
   if (payload.version !== 1) throw new Error('This export version is not supported.');
 
   if (payload.kind === 'comfort-card-share') {
-    const card = payload.card as Partial<ComfortCard> | undefined;
-    if (!card || typeof card.game !== 'string' || !card.game.trim() || typeof card.platform !== 'string' || !isStringArray(card.triggers) || typeof card.customTrigger !== 'string' || !Array.isArray(card.settings) || !card.settings.every(validSetting)) {
+    const card = payload.card;
+    if (!isRecord(card) || !isText(card.game, 80, true) || !isText(card.platform, 40) || !isKnownTriggerArray(card.triggers) || !isText(card.customTrigger, 100) || !Array.isArray(card.settings) || !card.settings.every(validSetting)) {
       throw new Error('This shared card is missing required information.');
     }
     return { cards: [makeCard({ game: card.game, platform: card.platform, triggers: card.triggers, customTrigger: card.customTrigger, settings: card.settings })], mode: 'share' };
   }
 
-  if (payload.kind === 'comfort-card-backup' && Array.isArray(payload.cards)) {
-    const cards = payload.cards as Partial<ComfortCard>[];
-    const valid = cards.every((card) => typeof card.id === 'string' && typeof card.game === 'string' && card.game.trim() && Array.isArray(card.settings) && card.settings.every(validSetting) && Array.isArray(card.sessions));
-    if (!valid) throw new Error('This backup contains an invalid card.');
-    return { cards: cards as ComfortCard[], mode: 'backup' };
+  if (payload.kind === 'comfort-card-backup' && isTimestamp(payload.exportedAt) && Array.isArray(payload.cards)) {
+    if (!payload.cards.every(isComfortCard)) throw new Error('This backup contains an invalid card. Nothing was restored.');
+    return { cards: payload.cards, mode: 'backup' };
   }
 
   throw new Error('That file is not a Comfort Card export.');

@@ -1,8 +1,19 @@
-import type { BackupPayload, ComfortCard } from './model';
+import { isComfortCard, type BackupPayload, type ComfortCard } from './model';
 
 const DATABASE = 'comfort-card-local';
 const VERSION = 1;
 const STORE = 'cards';
+
+export type InvalidLocalCard = {
+  key: IDBValidKey;
+  routeId?: string;
+  label: string;
+};
+
+export type LocalCards = {
+  cards: ComfortCard[];
+  invalidCards: InvalidLocalCard[];
+};
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -27,11 +38,28 @@ function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   });
 }
 
-export async function getCards(): Promise<ComfortCard[]> {
+export async function getCards(): Promise<LocalCards> {
   const database = await openDatabase();
-  const results = await requestResult(database.transaction(STORE).objectStore(STORE).getAll() as IDBRequest<ComfortCard[]>);
+  const store = database.transaction(STORE).objectStore(STORE);
+  const results = await requestResult(store.getAll() as IDBRequest<unknown[]>);
   database.close();
-  return results.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const cards: ComfortCard[] = [];
+  const invalidCards: InvalidLocalCard[] = [];
+  results.forEach((result, index) => {
+    if (isComfortCard(result)) {
+      cards.push(result);
+      return;
+    }
+    const record = result && typeof result === 'object' ? result as Record<string, unknown> : {};
+    invalidCards.push({
+      // The original importer required an id, and this key-path store uses it
+      // as the IndexedDB key. Records without one cannot have been imported.
+      key: typeof record.id === 'string' ? record.id : `unrecoverable-${index}`,
+      routeId: typeof record.id === 'string' ? record.id : undefined,
+      label: typeof record.game === 'string' && record.game.trim() ? record.game.slice(0, 80) : `Saved record ${index + 1}`,
+    });
+  });
+  return { cards: cards.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), invalidCards };
 }
 
 export async function saveCard(card: ComfortCard): Promise<void> {
@@ -40,7 +68,7 @@ export async function saveCard(card: ComfortCard): Promise<void> {
   database.close();
 }
 
-export async function removeCard(id: string): Promise<void> {
+export async function removeCard(id: IDBValidKey): Promise<void> {
   const database = await openDatabase();
   await requestResult(database.transaction(STORE, 'readwrite').objectStore(STORE).delete(id));
   database.close();
@@ -48,7 +76,13 @@ export async function removeCard(id: string): Promise<void> {
 
 export async function importCards(cards: ComfortCard[]): Promise<void> {
   const database = await openDatabase();
-  await Promise.all(cards.map((card) => requestResult(database.transaction(STORE, 'readwrite').objectStore(STORE).put(card))));
+  const transaction = database.transaction(STORE, 'readwrite');
+  cards.forEach((card) => transaction.objectStore(STORE).put(card));
+  await new Promise<void>((resolve, reject) => {
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(new Error('A local restore did not complete. Nothing was restored.'));
+    transaction.onabort = () => reject(new Error('A local restore did not complete. Nothing was restored.'));
+  });
   database.close();
 }
 
