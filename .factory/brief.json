@@ -1,0 +1,10 @@
+{
+  "slug": "motion-comfort-card",
+  "title": "Comfort Card",
+  "territory": "games-creative",
+  "user": "Players with motion sickness who need a fast, game-specific checklist of visual settings to try before spending an hour becoming nauseated.",
+  "smallest_useful_product": "Offline PWA that creates a per-game comfort card: symptom triggers, ordered settings to try, 15-minute check-ins, and a shareable non-identifying card.",
+  "artifact_class": "pwa-offline",
+  "monetization": "free",
+  "constraints": "Use careful non-medical language; all records local by default; do not imply that settings make a game safe for every user; allow immediate stop guidance."
+}

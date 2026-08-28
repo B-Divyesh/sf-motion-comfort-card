@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Comfort Card CC monogram">
+  <rect width="512" height="512" rx="88" fill="#F4EBD8"/>
+  <path d="M59 80h394v352H59z" fill="#1956A3" stroke="#172A2A" stroke-width="24"/>
+  <path d="M89 53h335l35 35v325l-35 46H89l-35-38V91z" fill="#FFF9ED" stroke="#172A2A" stroke-width="18"/>
+  <circle cx="390" cy="116" r="42" fill="#E7A923" stroke="#172A2A" stroke-width="14"/>
+  <path d="M230 188c-19-26-44-39-75-39-61 0-101 46-101 108s40 107 101 107c31 0 57-13 76-39l-38-31c-10 13-21 19-37 19-29 0-47-22-47-56s18-57 47-57c16 0 28 7 37 20zm228 0c-19-26-44-39-75-39-61 0-101 46-101 108s40 107 101 107c31 0 57-13 76-39l-38-31c-10 13-21 19-37 19-29 0-47-22-47-56s18-57 47-57c16 0 28 7 37 20z" fill="#172A2A"/>
+  <path d="M87 397h274" stroke="#C8452D" stroke-width="20"/>
+</svg>
