@@ -1,0 +1,65 @@
+[
+  {
+    "id": "demo-isolation",
+    "claim": "Demo changes are temporary and never change real cards",
+    "where": "demo banner, privacy page, demo documentation",
+    "test": "npm run test:e2e -- --grep @claim:demo-isolation",
+    "sandbox": "fresh browser context; create a real card, change and reset the demo, reload, then assert the real card is unchanged"
+  },
+  {
+    "id": "core-card-workflow",
+    "claim": "Each game card can hold motion triggers, an ordered settings plan, and symptom check-ins",
+    "where": "landing guide, demo, README",
+    "test": "npm run test:e2e -- --grep @claim:core-card-workflow",
+    "sandbox": "fresh /demo context; assert the completed sample exposes its game, triggers, ordered settings, tried state, and finished check-in"
+  },
+  {
+    "id": "local-private",
+    "claim": "No account, ads, analytics, or third-party runtime requests are used",
+    "where": "landing facts and footer, card form, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:local-private",
+    "sandbox": "fresh /demo context; intercept the complete sample session flow and assert every request is same-origin and no real database opens"
+  },
+  {
+    "id": "clean-share",
+    "claim": "Clean share text and files exclude check-ins, dates, durations, symptom scores, and private notes",
+    "where": "share dialog, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:clean-share",
+    "sandbox": "fresh /demo context; inspect the generated share text and downloaded clean-card file from the completed sample session"
+  },
+  {
+    "id": "check-in-interval",
+    "claim": "A play session starts a 15-minute check-in timer that can be paused or stopped",
+    "where": "landing, card, session UI, README",
+    "test": "npm run test:e2e -- --grep @claim:check-in-interval",
+    "sandbox": "fresh /demo context; start a session, assert the observable timer begins at 15 minutes, pause it, then stop and save it"
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit",
+    "where": "landing facts, README",
+    "test": "npm run test:e2e -- --grep @claim:offline-reload",
+    "sandbox": "fresh /demo context; wait for service worker control, switch the context offline, reload, and assert the sample card remains usable"
+  },
+  {
+    "id": "free-core-workflow",
+    "claim": "Card planning and check-ins are free and require no account",
+    "where": "landing facts, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:free-core-workflow",
+    "sandbox": "fresh /demo context; start a sample session without account, payment, checkout, or subscription controls"
+  },
+  {
+    "id": "local-persistence",
+    "claim": "Real game cards stay saved in this browser across reloads",
+    "where": "landing facts, card form, footer, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:local-persistence",
+    "sandbox": "fresh /demo context; leave demo, create a real card, reload its direct URL, and assert it remains available"
+  },
+  {
+    "id": "backup-restore",
+    "claim": "A full backup file includes and restores saved cards, sessions, check-ins, and private notes",
+    "where": "home card tools, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:backup-restore",
+    "sandbox": "fresh /demo context; leave demo, create a card and private check-in, inspect a downloaded backup, clear storage, import it, and assert the session returns"
+  }
+]

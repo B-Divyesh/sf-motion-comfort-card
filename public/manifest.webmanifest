@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Comfort Card",
   "short_name": "Comfort Card",
-  "description": "Private game-specific motion comfort plans and 15-minute session check-ins.",
+  "description": "Plan game settings before motion sickness starts and record private 15-minute check-ins.",
   "start_url": "/?v=__BUILD_VERSION__",
   "scope": "/",
   "display": "standalone",
@@ -15,6 +15,7 @@
     { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Make a new card", "short_name": "New card", "url": "/#new", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+    { "name": "Make a card", "short_name": "Make card", "url": "/new", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Try sample data", "short_name": "Demo", "url": "/demo", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }

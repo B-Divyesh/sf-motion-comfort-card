@@ -58,6 +58,8 @@ Art direction prompt sheet:
 
 The accepted source PNG and prompt sidecar live in `assets/src/`. A first render was rejected during review because it introduced an ambiguous extra hand and is not shipped. Shipping WebP derivatives live in `public/assets/`, with an authored responsive `<picture>`. The image is generated for this product through the factory Azure OpenAI image deployment (`factory-image`) on 2026-08-28. It is original project artwork; generated imagery is disclosed in the footer.
 
+The 1200×630 social preview in `public/assets/social-card.png` is a direct crop of that accepted source image. It adds no generated or third-party material.
+
 ### Authored assets
 
 The CC monogram app icons and small interface pictograms are hand-authored SVG/CSS using the palette above. They contain no third-party marks. The paper noise is a tiny inline SVG filter/data texture, not a remote asset.

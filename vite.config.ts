@@ -10,7 +10,7 @@ const root = fileURLToPath(new URL('.', import.meta.url));
 // Static Web Apps reads this file while deploying and deliberately does not
 // publish it. Keep it in dist for the host, but never make service-worker
 // installation depend on a URL that will be a production 404.
-const deploymentControlFiles = new Set(['staticwebapp.config.json']);
+const nonShellFiles = new Set(['staticwebapp.config.json', 'assets/social-card.png']);
 
 async function filesIn(directory: string, relative = ''): Promise<string[]> {
   const entries = await readdir(resolve(directory, relative), { withFileTypes: true });
@@ -37,7 +37,7 @@ function versionedPwa(): Plugin {
       const files = (await filesIn(output)).filter((file) => file !== 'sw.js'
         && file !== 'manifest.webmanifest'
         && !file.endsWith('.map')
-        && !deploymentControlFiles.has(file)).sort();
+        && !nonShellFiles.has(file)).sort();
       const hash = createHash('sha256');
       hash.update(await readFile(resolve(root, 'public/sw.js')));
       for (const file of files) {
@@ -62,6 +62,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(root, 'index.html'),
+        notFound: resolve(root, '404.html'),
         privacy: resolve(root, 'privacy/index.html'),
         terms: resolve(root, 'terms/index.html'),
         offline: resolve(root, 'offline.html'),

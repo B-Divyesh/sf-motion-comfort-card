@@ -1,51 +1,58 @@
 # Comfort Card
 
-Comfort Card is a private, offline-first field note for players who experience motion sickness in games. It turns scattered settings advice into a game-specific plan: note familiar motion triggers, order the settings to try, record 15-minute symptom check-ins, and keep what helped.
+Comfort Card is a private game-settings planner for players who get motion sick.
+Make one card for each game. List triggers, order settings, and record a 15-minute check-in.
 
 Live: [motion-comfort-card.sociobot.in](https://motion-comfort-card.sociobot.in)
 
-This is a planning and self-advocacy tool. It is not medical advice, a compatibility rating, or a promise that a setting will make a game safe or comfortable.
+Try the isolated sample at [motion-comfort-card.sociobot.in/demo](https://motion-comfort-card.sociobot.in/demo).
+The demo opens a completed Harbor Signal card. Demo changes disappear when you reload or leave.
+
+This tool helps you plan settings and record what you notice. It is not medical advice or a safety rating.
 
 ## What it does
 
-- Creates a card for each game with an optional platform and usual comfortable play-time baseline.
-- Provides an editable-before-save, ordered checklist covering camera sway, shake, blur, FOV, UI motion, turn speed, frame rate, and a fixed reticle.
-- Records tried settings and private play sessions in IndexedDB.
-- Runs a resumable 15-minute check-in timer with a prominent pause/stop path.
-- Records 0–4 symptom check-ins, familiar triggers, and optional private notes.
-- Exports a clean, non-identifying card that excludes all session history.
-- Exports and imports a full JSON backup so the user owns their data.
-- Installs as a PWA and reloads saved cards without a network connection.
+- Makes one card for each game and adds your usual comfortable play time.
+- Lets you choose and order common motion settings before saving.
+- Saves tried settings and play sessions in this browser.
+- Starts a 15-minute timer that you can pause or stop.
+- Records symptom check-ins, familiar triggers, and optional private notes.
+- Exports a clean card without session history or notes.
+- Exports and imports a full backup file.
+- Reopens the sample and saved app shell offline after the first visit.
 
 ## Privacy
 
-There is no account, server-side database, analytics, advertising, remote font, or third-party runtime script. Cards remain in the browser unless the user explicitly downloads, imports, copies, or shares them. A clean shared card omits session dates, durations, symptom scores, and notes; a full backup includes them and should be treated as private.
+No account, ads, analytics, or third-party scripts are used.
+Cards remain in this browser unless you download, import, copy, or share them.
+A clean card leaves out session dates, durations, symptom scores, and notes.
+A full backup contains those details, so treat it as private.
 
-See the in-app [privacy page](https://motion-comfort-card.sociobot.in/privacy/) and [terms](https://motion-comfort-card.sociobot.in/terms/).
+Read the [privacy page](https://motion-comfort-card.sociobot.in/privacy/) and [terms](https://motion-comfort-card.sociobot.in/terms/).
 
 ## Run locally
 
-Requirements: Node.js 22+ and npm.
+For developers, the requirements are Node.js 22 or newer and npm.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Vite prints the local development URL. Service-worker behavior is enabled in production builds, not the development server.
+Vite prints the local development URL. Service-worker behavior runs only in a production build.
 
 ## Test and build
 
 ```sh
-npm test            # model and import/export unit tests
-npm run build       # exact production build; writes dist/
-npm run test:e2e    # Chromium desktop + 390px mobile + offline + axe checks
+npm test            # unit tests
+npm run build       # production build in dist/
+npm run test:e2e    # browser, mobile, routing, offline, privacy, and claim tests
 npm run test:a11y   # accessibility subset
 ```
 
-The end-to-end suite expects the Playwright 1.58.2 Chromium binary. Install it when needed with `npx playwright install chromium`.
+The browser suite uses Playwright 1.58.2. Install Chromium with `npx playwright install chromium` if needed.
 
-For a clean production verification:
+Run these commands to verify a clean production build.
 
 ```sh
 npm ci
@@ -56,11 +63,15 @@ npm run test:e2e
 
 ## Deploy
 
-Deploy the contents of `dist/` as a static site. `index.html` is at the distribution root, with independent `/privacy/`, `/terms/`, and offline fallback pages. The service worker precaches the app shell and uses same-origin runtime caching for built assets.
+Deploy the contents of `dist/` as a static site.
+The host configuration maps product routes to the app and serves a styled 404 page.
+The versioned service worker caches the app shell and same-origin assets.
 
 ## Project notes
 
 - Product opportunity: [.factory/brief.json](.factory/brief.json)
 - Visual system and original asset provenance: [.factory/design.md](.factory/design.md)
+- Demo sandbox: [.factory/demo.md](.factory/demo.md)
+- Reliance claims and commands: [.factory/claims.json](.factory/claims.json)
 - Verification and handoff: [.factory/handoff.md](.factory/handoff.md)
 - License: MIT

@@ -41,6 +41,52 @@ let timerInterval = 0;
 let afterCheckIn = false;
 let deferredInstall: Event | null = null;
 
+const BUILD_ID = 'e6c2838-r1';
+const PRODUCT_ORIGIN = 'https://motion-comfort-card.sociobot.in';
+
+function makeDemoCard(): ComfortCard {
+  return {
+    id: 'demo-harbor-signal',
+    game: 'Harbor Signal',
+    platform: 'PC',
+    baselineMinutes: 20,
+    triggers: ['camera-shake', 'motion-blur', 'narrow-fov'],
+    customTrigger: 'Bobbing boat camera',
+    settings: DEFAULT_SETTINGS.map((setting, index) => ({
+      ...setting,
+      enabled: index < 6,
+      tried: index < 2,
+    })),
+    sessions: [{
+      id: 'demo-session-complete',
+      startedAt: '2026-08-27T18:00:00.000Z',
+      endedAt: '2026-08-27T18:24:00.000Z',
+      pausedMs: 0,
+      baselineSymptom: 1,
+      status: 'ended',
+      checkIns: [{
+        id: 'demo-check-in-15',
+        elapsedMinutes: 15,
+        symptomLevel: 1,
+        triggersFelt: ['motion-blur'],
+        note: 'Camera shake was off. The wide field of view felt easier to follow.',
+        createdAt: '2026-08-27T18:15:00.000Z',
+      }],
+    }],
+    createdAt: '2026-08-27T17:45:00.000Z',
+    updatedAt: '2026-08-27T18:24:00.000Z',
+  };
+}
+
+function isDemoMode(): boolean {
+  return location.pathname === '/demo' || location.pathname.startsWith('/demo/') || new URLSearchParams(location.search).get('demo') === '1';
+}
+
+function routeHref(route = ''): string {
+  const suffix = route ? `/${route.replace(/^\//, '')}` : '';
+  return `${isDemoMode() ? '/demo' : ''}${suffix}` || '/';
+}
+
 const escapeHtml = (value: string | number) => String(value)
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
@@ -65,23 +111,25 @@ const icon = (name: 'plus' | 'arrow' | 'pause' | 'play' | 'stop' | 'share' | 'do
 };
 
 function shell(content: string): string {
+  const demo = isDemoMode();
   return `
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="/" aria-label="Comfort Card home"><span class="brand-mark" aria-hidden="true">CC</span><span>Comfort Card</span></a>
+        <a class="brand" href="${routeHref()}" data-route aria-label="Comfort Card home"><span class="brand-mark" aria-hidden="true">CC</span><span>Comfort Card</span></a>
         <nav aria-label="Primary">
-          <a href="/#new">New card</a>
-          <button class="text-button" type="button" data-action="backup">Back up</button>
-          <button class="text-button" type="button" data-action="open-import">Import</button>
+          <a href="/demo" ${demo ? 'aria-current="page"' : ''}>Demo</a>
+          <a href="${routeHref('new')}" data-route>Make a card</a>
+          <a href="/privacy/">Privacy</a>
         </nav>
       </div>
+      ${demo ? '<div class="demo-banner" role="status"><strong>Demo — sample data, nothing is saved</strong><span><button type="button" data-action="reset-demo">Reset demo</button><a href="/" data-action="start-real">Start for real</a></span></div>' : ''}
       <div class="offline-banner" data-offline-banner role="status" ${navigator.onLine ? 'hidden' : ''}>Offline mode · your saved cards still work</div>
     </header>
     <main id="main-content" tabindex="-1">${content}</main>
     <footer class="site-footer">
-      <div><span class="footer-stamp">Local by design</span><p>Your cards stay in this browser unless you export them.</p></div>
+      <div><span class="footer-stamp">Saved on this device</span><p>Plan game settings before motion sickness starts.</p></div>
       <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
-      <p class="image-note">Original AI-generated risograph artwork · no trackers or ads.</p>
+      <p class="image-note">Risograph illustration. No ads or trackers.<br /><span>Built by Param Factory</span> · Build ${BUILD_ID}</p>
     </footer>
     <input id="import-file" class="visually-hidden" type="file" accept="application/json,.json" aria-label="Choose a Comfort Card export" />
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
@@ -91,30 +139,33 @@ function shell(content: string): string {
 
 function homeView(): string {
   const list = cards.length
-    ? `<section class="library" aria-labelledby="library-title">
+    ? `<section class="library" id="library" aria-labelledby="library-title">
         <div class="section-heading"><div><p class="eyebrow">On this device</p><h2 id="library-title">Your game cards</h2></div><span class="count-stamp">${cards.length} ${cards.length === 1 ? 'card' : 'cards'}</span></div>
         <div class="card-grid">${cards.map(cardSlip).join('')}</div>
+        ${!isDemoMode() ? '<div class="library-tools" aria-label="Card file tools"><button class="button" type="button" data-action="backup">Back up cards</button><button class="button" type="button" data-action="open-import">Import cards</button></div>' : ''}
       </section>`
     : `<section class="empty-state" aria-labelledby="empty-title">
         <div class="empty-symbol" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div><p class="eyebrow">Your drawer is empty</p><h2 id="empty-title">Start with the game you want to try.</h2><p>Make a short settings plan now, so you do not have to hunt through menus once play begins.</p><a class="button button-primary" href="#new">${icon('plus')} Make your first card</a></div>
+        <div><p class="eyebrow">No game cards yet</p><h2 id="empty-title">Start with the game you want to try.</h2><p>Choose settings before you start playing.</p><a class="button button-primary" href="${routeHref('new')}" data-route>${icon('plus')} Make your first card</a></div>
       </section>`;
 
   return shell(`
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">A before-you-play field note</p>
-        <h1>Find a steadier way into the game.</h1>
-        <p class="hero-lede">Build a personal list of visual settings to try, then use gentle 15-minute check-ins to notice how the session is going.</p>
-        <div class="hero-actions"><a class="button button-primary" href="#new">${icon('plus')} Make a comfort card</a><a class="quiet-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a></div>
-        <p class="care-note"><strong>Your comfort is the stop signal.</strong> This is a personal planning tool, not medical advice or a promise that a game will feel safe.</p>
+        <p class="eyebrow">A private game-motion plan</p>
+        <h1>Plan game settings before motion sickness starts.</h1>
+        <p class="hero-lede">For players who feel sick from game motion; make a private settings plan and check in every 15 minutes.</p>
+        <div class="hero-actions"><a class="button button-primary" href="/?demo=1">Try it with sample data</a><span class="action-note">Opens a completed game card.</span><a class="button" href="${routeHref('new')}" data-route>${icon('plus')} Make your own card</a></div>
+        <ul class="hero-facts" aria-label="Product facts"><li>Free</li><li>Stored on this device</li><li>Works offline after the first visit</li></ul>
+        <a class="quiet-link" href="#how-it-works">Read the 3-step guide <span aria-hidden="true">↓</span></a>
+        <p class="care-note"><strong>Stop playing when you feel unwell.</strong> This planning tool is not medical advice or a promise that a game will feel safe.</p>
       </div>
-      <figure class="hero-art"><picture><source type="image/webp" srcset="/assets/comfort-card-hero-720.webp 720w, /assets/comfort-card-hero-1200.webp 1200w" sizes="(max-width: 760px) 100vw, 46vw"><img src="/assets/comfort-card-hero-1200.webp" width="1200" height="800" fetchpriority="high" alt="Risograph collage of a game controller, a large pause button, and a calm horizon." /></picture><figcaption>Pause belongs in the plan.</figcaption></figure>
+      <figure class="hero-art"><picture><source type="image/webp" srcset="/assets/comfort-card-hero-720.webp 720w, /assets/comfort-card-hero-1200.webp 1200w" sizes="(max-width: 760px) 100vw, 46vw"><img src="/assets/comfort-card-hero-1200.webp" width="1200" height="800" fetchpriority="high" alt="Risograph collage of a game controller, a large pause button, and a calm horizon." /></picture><figcaption>You can pause or stop at any time.</figcaption></figure>
     </section>
-    ${storageError ? `<section class="error-state" role="alert"><p class="eyebrow">Local storage problem</p><h2>Your cards could not be opened.</h2><p>${escapeHtml(storageError)}</p><button class="button" data-action="retry-storage">Try again</button></section>` : `${invalidCards.length ? `<section class="storage-error" role="alert"><p class="eyebrow danger-text">Saved-data recovery</p><h2>${invalidCards.length === 1 ? 'One saved card needs recovery.' : `${invalidCards.length} saved cards need recovery.`}</h2><p>These records cannot be opened safely because they are incomplete. You can remove them from this browser; your other cards are still available.</p><div class="recovery-actions">${invalidCards.map((record, index) => `<a class="button" href="#card/${encodeURIComponent(record.routeId ?? `recovery-${index}`)}">Review ${escapeHtml(record.label)}</a>`).join('')}</div></section>` : ''}${list}`}
+    ${storageError ? `<section class="error-state" role="alert"><p class="eyebrow">Local storage problem</p><h2>Your cards could not be opened.</h2><p>${escapeHtml(storageError)}</p><button class="button" data-action="retry-storage">Try again</button></section>` : `${invalidCards.length ? `<section class="storage-error" role="alert"><p class="eyebrow danger-text">Saved-data recovery</p><h2>${invalidCards.length === 1 ? 'One saved card needs recovery.' : `${invalidCards.length} saved cards need recovery.`}</h2><p>These records cannot be opened safely because they are incomplete. You can remove them from this browser; your other cards are still available.</p><div class="recovery-actions">${invalidCards.map((record, index) => `<a class="button" href="${routeHref(`card/${encodeURIComponent(record.routeId ?? `recovery-${index}`)}`)}" data-route>Review ${escapeHtml(record.label)}</a>`).join('')}</div></section>` : ''}${list}`}
     <section class="how" id="how-it-works" aria-labelledby="how-title">
-      <p class="eyebrow">Three small moves</p><h2 id="how-title">Plan, notice, keep what helped.</h2>
-      <ol class="steps"><li><span>01</span><div><h3>Name the motion</h3><p>Mark the visual patterns you already know, without needing to diagnose anything.</p></div></li><li><span>02</span><div><h3>Order your settings</h3><p>Put the most promising game options first and check them off as you try them.</p></div></li><li><span>03</span><div><h3>Check in, or stop</h3><p>Notice symptoms every 15 minutes. Pause or stop at any time—no streaks, pressure, or scoring.</p></div></li></ol>
+      <p class="eyebrow">Make a settings plan in three steps</p><h2 id="how-title">Choose settings, check in, save notes.</h2>
+      <ol class="steps"><li><span>01</span><div><h3>Choose motion triggers</h3><p>Select game effects that have made you feel sick.</p></div></li><li><span>02</span><div><h3>Order your settings</h3><p>Put settings in the order you want to try them.</p></div></li><li><span>03</span><div><h3>Check in, or stop</h3><p>Notice symptoms every 15 minutes. Pause or stop whenever you need.</p></div></li></ol>
     </section>
   `);
 }
@@ -125,10 +176,10 @@ function cardSlip(card: ComfortCard): string {
   const triggerCount = card.triggers.length + (card.customTrigger ? 1 : 0);
   return `<article class="game-slip">
     <div class="slip-top"><span class="slip-platform">${escapeHtml(card.platform || 'Platform not set')}</span><span aria-label="${card.sessions.length} sessions">${String(card.sessions.length).padStart(2, '0')}</span></div>
-    <h3><a href="#card/${encodeURIComponent(card.id)}">${escapeHtml(card.game)}</a></h3>
+    <h3><a href="${routeHref(`card/${encodeURIComponent(card.id)}`)}" data-route>${escapeHtml(card.game)}</a></h3>
     <p>${triggerCount ? `${triggerCount} motion ${triggerCount === 1 ? 'trigger' : 'triggers'} noted` : 'Triggers still to be learned'}</p>
     <div class="slip-stats"><span><strong>${longest}</strong> longest min</span><span><strong>${card.settings.filter((setting) => setting.tried).length}/${card.settings.filter((setting) => setting.enabled).length}</strong> settings tried</span></div>
-    ${latest?.status === 'active' ? `<a class="resume-link" href="#session/${encodeURIComponent(card.id)}/${encodeURIComponent(latest.id)}">${icon('play')} Resume active session</a>` : `<a class="slip-link" href="#card/${encodeURIComponent(card.id)}">Open card <span aria-hidden="true">→</span></a>`}
+    ${latest?.status === 'active' ? `<a class="resume-link" href="${routeHref(`session/${encodeURIComponent(card.id)}/${encodeURIComponent(latest.id)}`)}" data-route>${icon('play')} Resume active session</a>` : `<a class="slip-link" href="${routeHref(`card/${encodeURIComponent(card.id)}`)}" data-route>Open card <span aria-hidden="true">→</span></a>`}
   </article>`;
 }
 
@@ -142,10 +193,10 @@ function defaultDraft(): Draft {
 function createView(): string {
   if (!draft) draft = defaultDraft();
   const formDraft = draft;
-  return shell(`<section class="page-intro narrow"><a class="back-link" href="/#library-title">← Your cards</a><p class="eyebrow">New field note</p><h1>Make a comfort card.</h1><p>Start with what you know. You can change every part later.</p></section>
+  return shell(`<section class="page-intro narrow"><a class="back-link" href="${routeHref()}" data-route>← Your cards</a><p class="eyebrow">New game card</p><h1>Make a comfort card.</h1><p>Start with what you know. You can change every part later.</p></section>
     <form id="create-card" class="composer" novalidate>
       <section class="form-section" aria-labelledby="game-heading"><div class="step-no">01</div><div><h2 id="game-heading">Which game?</h2><p class="section-note">Only the game name is required.</p>
-        <div class="field-row"><label class="field"><span>Game name <em>Required</em></span><input name="game" required maxlength="80" autocomplete="off" value="${escapeHtml(formDraft.game)}" aria-describedby="game-error" /><small id="game-error" class="field-error">${formError}</small></label><label class="field"><span>Platform <small>Optional</small></span><input name="platform" maxlength="40" autocomplete="off" value="${escapeHtml(formDraft.platform)}" placeholder="PC, PlayStation, Switch…" /></label></div>
+        <div class="field-row"><label class="field"><span>Game name <em>Required</em></span><input name="game" required maxlength="80" autocomplete="off" value="${escapeHtml(formDraft.game)}" aria-describedby="game-error" aria-invalid="${formError ? 'true' : 'false'}" /><small id="game-error" class="field-error" ${formError ? 'role="alert"' : ''}>${formError}</small></label><label class="field"><span>Platform <small>Optional</small></span><input name="platform" maxlength="40" autocomplete="off" value="${escapeHtml(formDraft.platform)}" placeholder="PC, PlayStation, Switch…" /></label></div>
         <label class="field compact"><span>Usual comfortable play time <small>Optional</small></span><span class="number-field"><input name="baselineMinutes" type="number" min="0" max="${MAX_BASELINE_MINUTES}" step="1" inputmode="numeric" value="${formDraft.baselineMinutes || ''}" aria-describedby="baseline-help baseline-error" aria-invalid="${baselineError ? 'true' : 'false'}" /><span>minutes</span></span><small id="baseline-help">Use 0 if you do not have a baseline yet. Maximum ${MAX_BASELINE_MINUTES} minutes.</small><small id="baseline-error" class="field-error">${baselineError}</small></label>
       </div></section>
       <section class="form-section" aria-labelledby="trigger-heading"><div class="step-no">02</div><div><h2 id="trigger-heading">What motion do you notice?</h2><p class="section-note">Choose any familiar patterns. It is fine to leave this blank.</p>
@@ -169,7 +220,7 @@ function findInvalidCard(id: string): { record: InvalidLocalCard; index: number 
 }
 
 function recoveryView(record: InvalidLocalCard, index: number): string {
-  return shell(`<section class="error-state"><p class="eyebrow danger-text">Saved-data recovery</p><h1>This card cannot be opened safely.</h1><p><strong>${escapeHtml(record.label)}</strong> has incomplete saved data, so Comfort Card kept it out of the normal card view. Removing this broken record will not affect your other cards.</p><div class="dialog-actions"><button class="button button-danger" type="button" data-action="delete-invalid-card" data-index="${index}">${icon('trash')} Remove broken record</button><a class="button" href="/">Keep other cards</a></div></section>`);
+  return shell(`<section class="error-state"><p class="eyebrow danger-text">Saved-data recovery</p><h1>This card cannot be opened safely.</h1><p><strong>${escapeHtml(record.label)}</strong> has incomplete saved data, so Comfort Card kept it out of the normal card view. Removing this broken record will not affect your other cards.</p><div class="dialog-actions"><button class="button button-danger" type="button" data-action="delete-invalid-card" data-index="${index}">${icon('trash')} Remove broken record</button><a class="button" href="${routeHref()}" data-route>Keep other cards</a></div></section>`);
 }
 
 function activeSession(card: ComfortCard): Session | undefined {
@@ -182,7 +233,7 @@ function cardView(card: ComfortCard): string {
   if (card.customTrigger) triggerLabels.push(card.customTrigger);
   const longest = longestSession(card);
   const improvement = longest - card.baselineMinutes;
-  return shell(`<section class="card-header"><div><a class="back-link" href="/">← Your cards</a><p class="eyebrow">Personal comfort card</p><h1>${escapeHtml(card.game)}</h1><p>${escapeHtml(card.platform || 'Platform not set')} · Updated ${new Date(card.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p></div><div class="card-actions"><button class="button" type="button" data-action="share" data-card="${card.id}">${icon('share')} Share clean copy</button><button class="icon-button danger-quiet" type="button" data-action="confirm-delete" data-card="${card.id}">${icon('trash')}<span>Delete</span></button></div></section>
+  return shell(`<section class="card-header"><div><a class="back-link" href="${routeHref()}" data-route>← Your cards</a><p class="eyebrow">Personal comfort card</p><h1>${escapeHtml(card.game)}</h1><p>${escapeHtml(card.platform || 'Platform not set')} · Updated ${new Date(card.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p></div><div class="card-actions"><button class="button" type="button" data-action="share" data-card="${card.id}">${icon('share')} Share clean copy</button><button class="icon-button danger-quiet" type="button" data-action="confirm-delete" data-card="${card.id}">${icon('trash')}<span>Delete</span></button></div></section>
     <div class="card-layout">
       <section class="paper-plan" aria-labelledby="plan-title"><div class="paper-pin" aria-hidden="true"></div><p class="eyebrow">Try in this order</p><h2 id="plan-title">Settings plan</h2><p class="section-note">Check an item after you have tried it in this game.</p>
         <ol class="try-list">${card.settings.filter((setting) => setting.enabled).map((setting) => `<li class="${setting.tried ? 'is-tried' : ''}"><label><input type="checkbox" data-action="toggle-tried" data-card="${card.id}" data-setting="${escapeHtml(setting.id)}" ${setting.tried ? 'checked' : ''}/><span class="try-check">${icon('check')}</span><span><strong>${escapeHtml(setting.label)}</strong><small>${escapeHtml(setting.tip)}</small></span></label></li>`).join('')}</ol>
@@ -191,7 +242,7 @@ function cardView(card: ComfortCard): string {
         <section class="baseline-block"><p class="eyebrow">Your reference</p><h2>${card.baselineMinutes || '—'} <small>baseline minutes</small></h2><p>${longest ? `Longest recorded session: <strong>${longest} min</strong>${card.baselineMinutes ? ` (${improvement >= 0 ? '+' : ''}${improvement} from baseline)` : ''}.` : 'Finish a session to create a comparison.'}</p></section>
       </aside>
     </div>
-    <section class="session-launch" aria-labelledby="session-title"><div><p class="eyebrow">When you are ready</p><h2 id="session-title">Start with a quick symptom check.</h2><p>The first reminder is in 15 minutes. You can check in or stop sooner.</p></div>${active ? `<a class="button button-primary" href="#session/${encodeURIComponent(card.id)}/${encodeURIComponent(active.id)}">${icon('play')} Resume session</a>` : `<button class="button button-primary" type="button" data-action="open-start" data-card="${card.id}">${icon('play')} Start a session</button>`}</section>
+    <section class="session-launch" aria-labelledby="session-title"><div><p class="eyebrow">When you are ready</p><h2 id="session-title">Start with a quick symptom check.</h2><p>The first reminder is in 15 minutes. You can check in or stop sooner.</p></div>${active ? `<a class="button button-primary" href="${routeHref(`session/${encodeURIComponent(card.id)}/${encodeURIComponent(active.id)}`)}" data-route>${icon('play')} Resume session</a>` : `<button class="button button-primary" type="button" data-action="open-start" data-card="${card.id}">${icon('play')} Start a session</button>`}</section>
     ${sessionsView(card)}
     ${startDialog(card)}${shareDialog(card)}${deleteDialog(card)}`);
 }
@@ -227,9 +278,9 @@ function sessionView(card: ComfortCard, session: Session): string {
   const latest = session.checkIns.at(-1);
   const checkInPanel = afterCheckIn && latest ? decisionPanel(card, session, latest.symptomLevel) : '';
   return shell(`<section class="session-page">
-    <div class="session-top"><a class="back-link" href="#card/${encodeURIComponent(card.id)}">← ${escapeHtml(card.game)} card</a><span class="live-stamp">${paused ? 'Paused' : 'Session active'}</span></div>
+    <div class="session-top"><a class="back-link" href="${routeHref(`card/${encodeURIComponent(card.id)}`)}" data-route>← ${escapeHtml(card.game)} card</a><span class="live-stamp">${paused ? 'Paused' : 'Session active'}</span></div>
     <div class="timer-block"><p class="eyebrow">${remaining ? 'Next gentle check-in' : 'Check-in ready'}</p><h1><span id="session-timer" data-session-timer data-started="${session.startedAt}">${formatTimer(remaining)}</span></h1><p>${remaining ? 'You do not have to wait. Check in whenever you need.' : 'Take a moment to notice how you feel.'}</p><div class="timer-actions"><button class="button" type="button" data-action="toggle-pause" data-card="${card.id}" data-session="${session.id}">${paused ? icon('play') + ' Resume timer' : icon('pause') + ' Pause timer'}</button><button class="button button-danger" type="button" data-action="stop-now">${icon('stop')} Stop now</button></div></div>
-    ${checkInPanel || `<section class="checkin-callout"><div><p class="eyebrow">Starting symptom: ${session.baselineSymptom} / 4</p><h2>${remaining ? 'Notice a change?' : 'Ready for a check-in?'}</h2><p>Record what you notice now. A higher number is useful information, not a failed session.</p></div><a class="button button-primary" href="#checkin/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}">Check in now ${icon('arrow')}</a></section>`}
+    ${checkInPanel || `<section class="checkin-callout"><div><p class="eyebrow">Starting symptom: ${session.baselineSymptom} / 4</p><h2>${remaining ? 'Notice a change?' : 'Ready for a check-in?'}</h2><p>Record what you notice now. A higher number is useful information, not a failed session.</p></div><a class="button button-primary" href="${routeHref(`check-in/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}`)}" data-route>Check in now ${icon('arrow')}</a></section>`}
     <section class="session-settings" aria-labelledby="session-settings-title"><p class="eyebrow">Keep the plan nearby</p><h2 id="session-settings-title">Settings in this session</h2><ul>${card.settings.filter((setting) => setting.enabled).map((setting) => `<li class="${setting.tried ? 'is-tried' : ''}">${setting.tried ? icon('check') : '<span aria-hidden="true">○</span>'}<span>${escapeHtml(setting.label)}</span></li>`).join('')}</ul></section>
     <p class="session-privacy">Session notes are saved automatically on this device and omitted from shared cards.</p>
     ${stopDialog(card, session)}
@@ -238,11 +289,11 @@ function sessionView(card: ComfortCard, session: Session): string {
 
 function decisionPanel(card: ComfortCard, session: Session, symptom: number): string {
   const increased = symptom > session.baselineSymptom;
-  return `<section class="decision-panel ${increased ? 'decision-caution' : ''}" tabindex="-1" id="decision-panel"><p class="eyebrow">Check-in saved · ${symptom} / 4</p><h2>${increased ? 'Your symptoms increased.' : 'Choose what feels right next.'}</h2><p>${increased ? 'Consider ending here or taking a longer break. Your note is already safe.' : 'Continue for another 15 minutes, adjust a setting, or finish here.'}</p><div class="decision-actions">${increased ? `<button class="button button-danger" type="button" data-action="stop-now">${icon('stop')} Stop this session</button>` : `<button class="button button-primary" type="button" data-action="continue-session">${icon('play')} Continue 15 minutes</button>`}<a class="button" href="#card/${encodeURIComponent(card.id)}">Adjust settings</a><button class="button button-quiet" type="button" data-action="end-session" data-card="${card.id}" data-session="${session.id}">End and save</button></div></section>`;
+  return `<section class="decision-panel ${increased ? 'decision-caution' : ''}" tabindex="-1" id="decision-panel"><p class="eyebrow">Check-in saved · ${symptom} / 4</p><h2>${increased ? 'Your symptoms increased.' : 'Choose what feels right next.'}</h2><p>${increased ? 'Consider ending here or taking a longer break. Your note is already safe.' : 'Continue for another 15 minutes, adjust a setting, or finish here.'}</p><div class="decision-actions">${increased ? `<button class="button button-danger" type="button" data-action="stop-now">${icon('stop')} Stop this session</button>` : `<button class="button button-primary" type="button" data-action="continue-session">${icon('play')} Continue 15 minutes</button>`}<a class="button" href="${routeHref(`card/${encodeURIComponent(card.id)}`)}" data-route>Adjust settings</a><button class="button button-quiet" type="button" data-action="end-session" data-card="${card.id}" data-session="${session.id}">End and save</button></div></section>`;
 }
 
 function checkInView(card: ComfortCard, session: Session): string {
-  return shell(`<section class="page-intro narrow"><a class="back-link" href="#session/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}">← Back to timer</a><p class="eyebrow">${Math.max(1, Math.round(elapsedMs(session) / 60000))}-minute note</p><h1>What do you notice?</h1><p>Take your eyes off the game while you check in. Your answers stay on this device.</p></section>
+  return shell(`<section class="page-intro narrow"><a class="back-link" href="${routeHref(`session/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}`)}" data-route>← Back to timer</a><p class="eyebrow">${Math.max(1, Math.round(elapsedMs(session) / 60000))}-minute note</p><h1>What do you notice?</h1><p>Take your eyes off the game while you check in. Your answers stay on this device.</p></section>
     <form id="check-in" class="checkin-form" data-card="${card.id}" data-session="${session.id}">${symptomChoices('symptomLevel')}
       <fieldset class="felt-list"><legend>Did any familiar motion stand out? <small>Optional</small></legend>${[...card.triggers.map((id) => ({ id, label: TRIGGERS.find((trigger) => trigger.id === id)?.label ?? id })), ...(card.customTrigger ? [{ id: 'custom', label: card.customTrigger }] : [])].map((trigger) => `<label class="choice-tile"><input type="checkbox" name="triggersFelt" value="${escapeHtml(trigger.id)}"/><span class="choice-box">${icon('check')}</span><span>${escapeHtml(trigger.label)}</span></label>`).join('') || '<p class="muted">No triggers are listed on this card yet.</p>'}</fieldset>
       <label class="field"><span>Private note <small>Optional</small></span><textarea name="note" maxlength="500" rows="4" placeholder="What changed? Which setting were you testing?"></textarea><small>Never included in the clean shared card.</small></label>
@@ -257,17 +308,17 @@ function stopDialog(card: ComfortCard, session: Session): string {
 function endedSessionView(card: ComfortCard, session: Session): string {
   const minutes = finishedSessionMinutes(session);
   const last = session.checkIns.at(-1);
-  return shell(`<section class="end-sheet"><p class="eyebrow">Session saved locally</p><div class="end-mark">${icon('check')}</div><h1>You stopped at ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}.</h1><p>${last ? `Your last check-in was ${last.symptomLevel} / 4.` : 'No symptom check-in was recorded.'} Stopping is always a valid result.</p><div class="end-stats"><span><strong>${session.checkIns.length}</strong> check-ins</span><span><strong>${card.baselineMinutes || '—'}</strong> baseline min</span></div><div class="end-actions"><a class="button button-primary" href="#card/${encodeURIComponent(card.id)}">Back to ${escapeHtml(card.game)}</a><a class="button" href="/">All cards</a></div></section>`);
+  return shell(`<section class="end-sheet"><p class="eyebrow">Session saved locally</p><div class="end-mark">${icon('check')}</div><h1>You stopped at ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}.</h1><p>${last ? `Your last check-in was ${last.symptomLevel} / 4.` : 'No symptom check-in was recorded.'} Stopping is always a valid result.</p><div class="end-stats"><span><strong>${session.checkIns.length}</strong> check-ins</span><span><strong>${card.baselineMinutes || '—'}</strong> baseline min</span></div><div class="end-actions"><a class="button button-primary" href="${routeHref(`card/${encodeURIComponent(card.id)}`)}" data-route>Back to ${escapeHtml(card.game)}</a><a class="button" href="${routeHref()}" data-route>All cards</a></div></section>`);
 }
 
 function legalView(kind: 'privacy' | 'terms'): string {
-  const privacy = `<p class="eyebrow">Plain-language privacy</p><h1>Your notes stay yours.</h1><p class="legal-lede">Comfort Card works without an account and stores your game cards, settings, symptom levels, and session notes in this browser’s IndexedDB storage.</p><h2>What leaves your device</h2><p>Nothing is sent to us. There are no analytics, advertising identifiers, remote fonts, or third-party scripts. If you choose to share or download a card, your browser handles that file or text at your direction.</p><h2>Exports</h2><p>A clean shared card includes the game, optional platform, triggers, and settings plan. It excludes symptom check-ins, session dates, durations, and notes. A full backup includes all locally stored information; treat that file as private.</p><h2>Deleting data</h2><p>Delete an individual card inside the app, or clear this site’s storage in your browser to remove everything. Removing the app may not clear browser data on every device.</p><h2>Contact</h2><p>For privacy questions, contact <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p><p class="legal-date">Effective 28 August 2026</p>`;
+  const privacy = `<p class="eyebrow">Plain-language privacy</p><h1>Your notes stay yours.</h1><p class="legal-lede">Comfort Card works without an account. It saves game cards, symptom levels, and session notes in this browser.</p><h2>What leaves your device</h2><p>Nothing is sent to us. We use no analytics, ads, remote fonts, or third-party scripts. Your browser handles files or text you choose to share.</p><h2>Demo data</h2><p>The demo uses temporary memory. It never reads or changes your real cards. Reloading or leaving the demo discards its changes.</p><h2>Exports</h2><p>A clean shared card includes the game, platform, triggers, and settings plan. It excludes check-ins, dates, durations, and notes. A full backup includes all saved information. Treat that file as private.</p><h2>Deleting data</h2><p>Delete one card inside the app. You can also clear this site’s browser storage to remove every card.</p><h2>Contact</h2><p>For privacy questions, contact <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p><p class="legal-date">Effective 28 August 2026</p>`;
   const terms = `<p class="eyebrow">Terms of use</p><h1>A planning tool, not a safety test.</h1><p class="legal-lede">Comfort Card helps you organize personal settings experiments and record how a play session felt. It does not diagnose, prevent, or treat motion sickness.</p><h2>Use your own judgment</h2><p>No setting can make every game comfortable or safe for every person. Stop when you feel unwell. Seek qualified medical advice for severe, unusual, or persistent symptoms.</p><h2>No compatibility promise</h2><p>Setting names and availability vary by game, platform, and version. Suggestions are general options to look for, not claims that a particular game supports them.</p><h2>Your content</h2><p>You own the cards and notes you create. They are stored locally. You are responsible for exports you choose to share.</p><h2>Availability and liability</h2><p>The free service is provided “as is” without warranties. To the extent permitted by law, its maintainers are not liable for loss arising from use of the app.</p><p class="legal-date">Effective 28 August 2026</p>`;
   return shell(`<article class="legal"><a class="back-link" href="/">← Comfort Card</a>${kind === 'privacy' ? privacy : terms}</article>`);
 }
 
-function notFoundView(): string {
-  return shell(`<section class="error-state"><p class="eyebrow">Card not found</p><h1>That field note is not on this device.</h1><p>It may have been deleted, or the link may belong to another browser.</p><a class="button button-primary" href="/">Return to your cards</a></section>`);
+function notFoundView(cardMissing = false): string {
+  return shell(`<section class="error-state not-found"><div class="not-found-mark" aria-hidden="true">404</div><p class="eyebrow">${cardMissing ? 'Card not found' : 'Page not found'}</p><h1>${cardMissing ? 'That game card is not on this device.' : 'This page is not in the drawer.'}</h1><p>${cardMissing ? 'It may have been deleted, or this link may belong to another browser.' : 'Check the address, or return to your game cards.'}</p><a class="button button-primary" href="${routeHref()}" data-route>Return to your cards</a></section>`);
 }
 
 function formatTimer(ms: number): string {
@@ -279,41 +330,100 @@ function formatTimer(ms: number): string {
 
 function routeParts(): string[] | null {
   try {
-    return location.hash.slice(1).split('/').map(decodeURIComponent);
+    let path = location.pathname.replace(/\/+$/, '') || '/';
+    if (path === '/privacy' || path === '/terms') return [];
+    if (path === '/demo') path = '/';
+    else if (path.startsWith('/demo/')) path = path.slice('/demo'.length);
+    return path === '/' ? [] : path.slice(1).split('/').map(decodeURIComponent);
   } catch {
     return null;
   }
 }
 
-function render(): void {
-  window.clearInterval(timerInterval);
-  const path = location.pathname;
-  if (path.startsWith('/privacy')) app.innerHTML = legalView('privacy');
-  else if (path.startsWith('/terms')) app.innerHTML = legalView('terms');
-  else {
-    const parts = routeParts();
-    if (!parts) {
-      app.innerHTML = notFoundView();
-      updateOfflineBanner();
-      return;
-    }
-    if (parts[0] === 'new') app.innerHTML = createView();
-    else if (parts[0] === 'card') {
-      const card = findCard(parts[1]);
-      const invalid = card ? undefined : findInvalidCard(parts[1]);
-      app.innerHTML = card ? cardView(card) : invalid ? recoveryView(invalid.record, invalid.index) : notFoundView();
-    } else if (parts[0] === 'session') {
-      const card = findCard(parts[1]);
-      const session = card?.sessions.find((item) => item.id === parts[2]);
-      app.innerHTML = card && session ? sessionView(card, session) : notFoundView();
-      if (card && session?.status === 'active') startTimer(session);
-    } else if (parts[0] === 'checkin') {
-      const card = findCard(parts[1]);
-      const session = card?.sessions.find((item) => item.id === parts[2]);
-      app.innerHTML = card && session ? checkInView(card, session) : notFoundView();
-    } else app.innerHTML = homeView();
-  }
+function setMeta(title: string, description: string, canonicalPath: string): void {
+  document.title = title;
+  const canonicalUrl = `${PRODUCT_ORIGIN}${canonicalPath}`;
+  const set = (selector: string, attribute: string, value: string) => {
+    document.querySelector<HTMLMetaElement | HTMLLinkElement>(selector)?.setAttribute(attribute, value);
+  };
+  set('meta[name="description"]', 'content', description);
+  set('link[rel="canonical"]', 'href', canonicalUrl);
+  set('meta[property="og:title"]', 'content', title);
+  set('meta[property="og:description"]', 'content', description);
+  set('meta[property="og:url"]', 'content', canonicalUrl);
+  set('meta[name="twitter:title"]', 'content', title);
+  set('meta[name="twitter:description"]', 'content', description);
+}
+
+function finishRoute(title: string, description: string, canonicalPath: string, focusHeading: boolean): void {
+  setMeta(title, description, canonicalPath);
   updateOfflineBanner();
+  if (!focusHeading) return;
+  const heading = document.querySelector<HTMLHeadingElement>('main h1');
+  if (!heading) return;
+  heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
+  const status = document.querySelector<HTMLElement>('#route-status');
+  if (status) status.textContent = heading.textContent ?? title;
+}
+
+function render(focusHeading = false): void {
+  window.clearInterval(timerInterval);
+  const path = location.pathname.replace(/\/+$/, '') || '/';
+  if (path === '/privacy') {
+    app.innerHTML = legalView('privacy');
+    finishRoute('Privacy — Comfort Card', 'How Comfort Card stores game cards and session notes on your device.', '/privacy/', focusHeading);
+    return;
+  }
+  if (path === '/terms') {
+    app.innerHTML = legalView('terms');
+    finishRoute('Terms — Comfort Card', 'Terms for using Comfort Card as a personal game-settings planner.', '/terms/', focusHeading);
+    return;
+  }
+  const parts = routeParts();
+  const demo = isDemoMode();
+  let title = demo ? 'Demo — Comfort Card' : 'Comfort Card — plan settings for motion sickness';
+  let description = demo ? 'Try a completed game-motion settings plan with temporary sample data.' : 'Plan game settings before motion sickness starts, then record private 15-minute check-ins.';
+  let canonicalPath = demo ? '/demo' : '/';
+  if (!parts) {
+    app.innerHTML = notFoundView();
+    title = 'Page not found — Comfort Card';
+    canonicalPath = '/404';
+  } else if (parts.length === 0) {
+    if (demo) {
+      const sample = cards[0] ?? makeDemoCard();
+      app.innerHTML = cardView(sample);
+    } else app.innerHTML = homeView();
+  } else if (parts[0] === 'new' && parts.length === 1) {
+    app.innerHTML = createView();
+    title = `${demo ? 'Demo card' : 'Make a card'} — Comfort Card`;
+    canonicalPath = demo ? '/demo' : '/new';
+  } else if (parts[0] === 'card' && parts.length === 2) {
+    const card = findCard(parts[1]);
+    const invalid = card ? undefined : findInvalidCard(parts[1]);
+    app.innerHTML = card ? cardView(card) : invalid ? recoveryView(invalid.record, invalid.index) : notFoundView(true);
+    title = card ? `${card.game} — Comfort Card` : 'Card not found — Comfort Card';
+    canonicalPath = demo ? '/demo' : `/card/${encodeURIComponent(parts[1])}`;
+  } else if (parts[0] === 'session' && parts.length === 3) {
+    const card = findCard(parts[1]);
+    const session = card?.sessions.find((item) => item.id === parts[2]);
+    app.innerHTML = card && session ? sessionView(card, session) : notFoundView(true);
+    title = card && session ? `Session — ${card.game} — Comfort Card` : 'Session not found — Comfort Card';
+    canonicalPath = demo ? '/demo' : `/session/${encodeURIComponent(parts[1])}/${encodeURIComponent(parts[2])}`;
+    if (card && session?.status === 'active') startTimer(session);
+  } else if (parts[0] === 'check-in' && parts.length === 3) {
+    const card = findCard(parts[1]);
+    const session = card?.sessions.find((item) => item.id === parts[2]);
+    app.innerHTML = card && session ? checkInView(card, session) : notFoundView(true);
+    title = card && session ? `Check in — ${card.game} — Comfort Card` : 'Check-in not found — Comfort Card';
+    canonicalPath = demo ? '/demo' : `/check-in/${encodeURIComponent(parts[1])}/${encodeURIComponent(parts[2])}`;
+  } else {
+    app.innerHTML = notFoundView();
+    title = 'Page not found — Comfort Card';
+    description = 'The requested Comfort Card page was not found.';
+    canonicalPath = '/404';
+  }
+  finishRoute(title, description, canonicalPath, focusHeading);
 }
 
 function startTimer(session: Session): void {
@@ -387,10 +497,27 @@ function syncDraft(): boolean {
 
 async function persist(card: ComfortCard, message = 'Saved on this device.'): Promise<void> {
   card.updatedAt = new Date().toISOString();
-  await saveCard(card);
+  if (!isDemoMode()) await saveCard(card);
   cards = [card, ...cards.filter((item) => item.id !== card.id)];
-  showToast(message);
+  showToast(isDemoMode() ? 'Demo updated for this visit only.' : message);
 }
+
+function navigate(url: string, replace = false): void {
+  history.replaceState({ ...(history.state ?? {}), scrollY: window.scrollY }, '');
+  if (replace) history.replaceState({ scrollY: 0 }, '', url);
+  else history.pushState({ scrollY: 0 }, '', url);
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  render(true);
+}
+
+app.addEventListener('click', (event) => {
+  const link = (event.target as Element).closest<HTMLAnchorElement>('a[data-route]');
+  if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const url = new URL(link.href, location.href);
+  if (url.origin !== location.origin) return;
+  event.preventDefault();
+  navigate(`${url.pathname}${url.search}${url.hash}`);
+});
 
 app.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -412,7 +539,7 @@ app.addEventListener('submit', async (event) => {
       await persist(card);
       draft = null;
       formError = '';
-      location.hash = `card/${encodeURIComponent(card.id)}`;
+      navigate(routeHref(`card/${encodeURIComponent(card.id)}`));
     }
     if (form.id === 'start-session') {
       const card = findCard(form.dataset.card ?? '');
@@ -422,7 +549,7 @@ app.addEventListener('submit', async (event) => {
       card.sessions.unshift(session);
       await persist(card, 'Session started and saved locally.');
       afterCheckIn = false;
-      location.hash = `session/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}`;
+      navigate(routeHref(`session/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}`));
     }
     if (form.id === 'check-in') {
       const card = findCard(form.dataset.card ?? '');
@@ -439,7 +566,7 @@ app.addEventListener('submit', async (event) => {
       });
       await persist(card, 'Check-in saved privately.');
       afterCheckIn = true;
-      location.hash = `session/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}`;
+      navigate(routeHref(`session/${encodeURIComponent(card.id)}/${encodeURIComponent(session.id)}`));
     }
   } catch (error) {
     showToast(error instanceof Error ? error.message : 'That action did not complete.');
@@ -519,20 +646,18 @@ app.addEventListener('click', async (event) => {
     }
     if (action === 'delete-card') {
       const id = target.dataset.card ?? '';
-      await removeCard(id);
+      if (!isDemoMode()) await removeCard(id);
       cards = cards.filter((card) => card.id !== id);
-      location.hash = '';
-      render();
-      showToast('Card deleted from this device.');
+      navigate(routeHref(), true);
+      showToast(isDemoMode() ? 'Demo card removed for this visit.' : 'Card deleted from this device.');
     }
     if (action === 'delete-invalid-card') {
       const index = Number(target.dataset.index);
       const record = invalidCards[index];
       if (!record) return;
-      await removeCard(record.key);
+      if (!isDemoMode()) await removeCard(record.key);
       invalidCards = invalidCards.filter((_, itemIndex) => itemIndex !== index);
-      location.hash = '';
-      render();
+      navigate(routeHref(), true);
       showToast('Broken saved record removed from this device.');
     }
     if (action === 'backup') {
@@ -543,6 +668,14 @@ app.addEventListener('click', async (event) => {
     if (action === 'open-import') document.querySelector<HTMLInputElement>('#import-file')?.click();
     if (action === 'retry-storage') await loadCards();
     if (action === 'reload-app') location.reload();
+    if (action === 'reset-demo') {
+      cards = [makeDemoCard()];
+      draft = null;
+      afterCheckIn = false;
+      navigate('/demo', true);
+      showToast('Sample data reset.');
+    }
+    if (action === 'start-real') location.assign('/');
   } catch (error) {
     showToast(error instanceof Error ? error.message : 'That action did not complete.');
   }
@@ -551,6 +684,7 @@ app.addEventListener('click', async (event) => {
 app.addEventListener('change', (event) => {
   const input = event.target as HTMLInputElement;
   if (input.id !== 'import-file' || !input.files?.[0]) return;
+  if (isDemoMode()) { showToast('Leave the demo before importing real cards.'); return; }
   const file = input.files[0];
   file.text().then(async (text) => {
     const result = parseImport(JSON.parse(text) as unknown);
@@ -561,13 +695,25 @@ app.addEventListener('change', (event) => {
   input.value = '';
 });
 
-window.addEventListener('hashchange', render);
+history.scrollRestoration = 'manual';
+window.addEventListener('popstate', (event) => {
+  const savedScroll = Number(event.state?.scrollY ?? 0);
+  render(true);
+  requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: savedScroll, behavior: 'instant' })));
+});
 window.addEventListener('online', updateOfflineBanner);
 window.addEventListener('offline', updateOfflineBanner);
 window.addEventListener('beforeinstallprompt', (event) => { event.preventDefault(); deferredInstall = event; });
 void deferredInstall;
 
 async function loadCards(): Promise<void> {
+  if (isDemoMode()) {
+    cards = [makeDemoCard()];
+    invalidCards = [];
+    storageError = '';
+    render();
+    return;
+  }
   try {
     const loaded = await getCards();
     cards = loaded.cards;
@@ -601,5 +747,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   }).catch(() => { /* The app remains usable without installation support. */ });
 }
 
-app.innerHTML = shell('<section class="loading-state" aria-busy="true"><p class="eyebrow">Local by design</p><h1>Opening your cards…</h1><p>Reading this device only.</p></section>');
+app.innerHTML = shell('<section class="loading-state" aria-busy="true"><p class="eyebrow">Saved on this device</p><h1>Opening your cards…</h1><p>Reading this device only.</p></section>');
+const legacyRoute = location.hash.match(/^#(new|card\/[^/]+|session\/[^/]+\/[^/]+|checkin\/[^/]+\/[^/]+)$/)?.[1];
+if (legacyRoute) history.replaceState({}, '', `/${legacyRoute.replace(/^checkin\//, 'check-in/')}`);
 void loadCards();

@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test';
 
 test('creates a card, records a check-in, stops, and keeps private history', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find a steadier way into the game.');
-  await page.getByRole('link', { name: 'Make a comfort card' }).first().click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plan game settings before motion sickness starts.');
+  await page.getByRole('link', { name: 'Make your own card' }).click();
 
   await page.getByLabel('Game name Required').fill('Drift Valley');
   await page.getByLabel('Platform Optional').fill('PC');
@@ -43,7 +43,7 @@ test('creates a card, records a check-in, stops, and keeps private history', asy
 });
 
 test('shows validation and supports a keyboard-first creation path', async ({ page }) => {
-  await page.goto('/#new');
+  await page.goto('/new');
   await page.getByRole('button', { name: 'Make this card' }).click();
   await expect(page.getByText('Enter the game name to make this card.')).toBeVisible();
   await expect(page.getByLabel('Game name Required')).toBeFocused();
@@ -55,12 +55,12 @@ test('shows validation and supports a keyboard-first creation path', async ({ pa
 });
 
 test('reloads offline after the app shell is cached', async ({ page, context }) => {
-  await page.goto('/');
+  await page.goto('/demo');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.reload();
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find a steadier way into the game.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Harbor Signal');
   await expect(page.getByText('Offline mode · your saved cards still work')).toBeVisible();
 });
 
@@ -130,7 +130,7 @@ test('quarantines and lets the player remove an already-malformed saved card', a
 });
 
 test('rejects a baseline outside the advertised 0–600 minute range', async ({ page }) => {
-  await page.goto('/#new');
+  await page.goto('/new');
   await page.getByLabel('Game name Required').fill('Boundary Game');
   await page.getByLabel('Usual comfortable play time Optional').fill('9999');
   await page.getByRole('button', { name: 'Make this card' }).click();
@@ -156,4 +156,88 @@ test('shows the update action when a changed service worker is installed', async
   } finally {
     await writeFile('dist/sw.js', original);
   }
+});
+
+test('uses real routes, route titles, focus, Back, and scroll restoration', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plan game settings before motion sickness starts.');
+  await page.evaluate(() => window.scrollTo(0, 500));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(350);
+  await page.locator('header a[href="/new"]').evaluate((link: HTMLAnchorElement) => link.click());
+  await expect(page).toHaveURL(/\/new$/);
+  await expect(page).toHaveTitle('Make a card — Comfort Card');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toHaveText('Make a comfort card.');
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toHaveText('Plan game settings before motion sickness starts.');
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(350);
+});
+
+test('loads both demo entry points with sample data and route metadata', async ({ page }) => {
+  for (const path of ['/demo', '/?demo=1']) {
+    await page.goto(path);
+    await expect(page).toHaveTitle('Demo — Comfort Card');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Harbor Signal');
+    await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://motion-comfort-card.sociobot.in/demo');
+  }
+});
+
+test('opens the isolated query-string demo from the first screen in one click', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Harbor Signal');
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
+});
+
+test('keeps demo mode, title, and focus through internal navigation and Back', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('link', { name: 'Make a card' }).click();
+  await expect(page).toHaveURL(/\/demo\/new$/);
+  await expect(page).toHaveTitle('Demo card — Comfort Card');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toHaveText('Make a comfort card.');
+  await page.goBack();
+  await expect(page).toHaveURL(/\/demo$/);
+  await expect(page).toHaveTitle('Demo — Comfort Card');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Harbor Signal');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toHaveText('Harbor Signal');
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+});
+
+test('renders a designed not-found page instead of the home page', async ({ page }) => {
+  await page.goto('/definitely-missing');
+  await expect(page).toHaveTitle('Page not found — Comfort Card');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is not in the drawer.');
+  await expect(page.getByText('Plan game settings before motion sickness starts.')).toHaveCount(1);
+  await expect(page.getByRole('link', { name: 'Return to your cards' })).toBeVisible();
+});
+
+test('ships complete social metadata and working legal links', async ({ page, request }) => {
+  await page.goto('/');
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/icons/apple-touch-icon.png');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /social-card\.png$/);
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  for (const path of ['/privacy/', '/terms/']) {
+    const response = await request.get(path);
+    expect(response.ok()).toBe(true);
+    await page.goto(path);
+    await expect(page.locator('main h1')).toHaveCount(1);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${'https://motion-comfort-card.sociobot.in'}${path}`);
+  }
+});
+
+test('keeps first-screen content and controls usable at 390px', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Try it with sample data' })).toBeVisible();
+  await expect(page.getByText('For players who feel sick from game motion')).toBeVisible();
+  await expect(page.getByText('Works offline after the first visit')).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBe(0);
 });
