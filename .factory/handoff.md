@@ -85,9 +85,10 @@ missing image alt or unlabeled buttons. Live desktop and 390px Axe scans found
 zero serious/critical violations, no horizontal overflow, no errors, and only
 same-origin `https://motion-comfort-card.sociobot.in` requests.
 
-Lighthouse was not installed in this container; browser performance budgets,
-responsive checks, bundle sizes, console checks, and axe checks above completed
-successfully.
+Lighthouse was installed for a final live run. Its Chromium tab crashed while
+capturing the final screenshot, so its otherwise reported scores are not used
+as release evidence. Browser performance budgets, responsive checks, bundle
+sizes, console checks, and axe checks above completed successfully.
 
 ## Run / deploy
 
