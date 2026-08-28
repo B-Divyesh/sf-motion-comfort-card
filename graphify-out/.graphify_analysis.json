@@ -212,8 +212,8 @@
       "degree": 9
     },
     {
-      "id": "package_scripts",
-      "label": "scripts",
+      "id": "src_model_elapsedms",
+      "label": "elapsedMs()",
       "degree": 7
     },
     {
@@ -222,37 +222,15 @@
       "degree": 7
     },
     {
-      "id": "src_model_elapsedms",
-      "label": "elapsedMs()",
+      "id": "package_scripts",
+      "label": "scripts",
       "degree": 7
     }
   ],
   "surprises": [
     {
-      "source": "loadCards()",
-      "target": "getCards()",
-      "source_files": [
-        "src/main.ts",
-        "src/db.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
-      "source": "persist()",
-      "target": "saveCard()",
-      "source_files": [
-        "src/main.ts",
-        "src/db.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
-      "source": "cardSlip()",
-      "target": "longestSession()",
+      "source": "checkInView()",
+      "target": "elapsedMs()",
       "source_files": [
         "src/main.ts",
         "src/model.ts"
@@ -262,8 +240,19 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "cardView()",
-      "target": "longestSession()",
+      "source": "sessionView()",
+      "target": "elapsedMs()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "startTimer()",
+      "target": "elapsedMs()",
       "source_files": [
         "src/main.ts",
         "src/model.ts"
@@ -275,6 +264,17 @@
     {
       "source": "shareDialog()",
       "target": "shareText()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "endedSessionView()",
+      "target": "finishedSessionMinutes()",
       "source_files": [
         "src/main.ts",
         "src/model.ts"
