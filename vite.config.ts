@@ -7,6 +7,11 @@ import type { Plugin } from 'vite';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 
+// Static Web Apps reads this file while deploying and deliberately does not
+// publish it. Keep it in dist for the host, but never make service-worker
+// installation depend on a URL that will be a production 404.
+const deploymentControlFiles = new Set(['staticwebapp.config.json']);
+
 async function filesIn(directory: string, relative = ''): Promise<string[]> {
   const entries = await readdir(resolve(directory, relative), { withFileTypes: true });
   const paths = await Promise.all(entries.map(async (entry) => {
@@ -29,7 +34,10 @@ function versionedPwa(): Plugin {
     apply: 'build',
     async closeBundle() {
       const output = resolve(root, 'dist');
-      const files = (await filesIn(output)).filter((file) => file !== 'sw.js' && file !== 'manifest.webmanifest' && !file.endsWith('.map')).sort();
+      const files = (await filesIn(output)).filter((file) => file !== 'sw.js'
+        && file !== 'manifest.webmanifest'
+        && !file.endsWith('.map')
+        && !deploymentControlFiles.has(file)).sort();
       const hash = createHash('sha256');
       hash.update(await readFile(resolve(root, 'public/sw.js')));
       for (const file of files) {

@@ -64,6 +64,13 @@ test('reloads offline after the app shell is cached', async ({ page, context }) 
   await expect(page.getByText('Offline mode · your saved cards still work')).toBeVisible();
 });
 
+test('production worker excludes deployment-only configuration from its precache', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const worker = await readFile('dist/sw.js', 'utf8');
+  expect(worker).not.toContain('staticwebapp.config.json');
+  expect(worker).toContain('const PRECACHE =');
+});
+
 test('rejects malformed full backups before they reach local storage', async ({ page }) => {
   await page.goto('/');
   const malformed = {

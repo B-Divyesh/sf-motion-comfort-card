@@ -1,47 +1,76 @@
-# Comfort Card verification handoff — FAIL
+# Comfort Card repair handoff — ready to deploy
 
-Independent verification on 2026-08-28 found that candidate
-`e79554372f6dc27da16623c69bbb828a5fd5eec5` is deployed byte-for-byte at
-https://motion-comfort-card.sociobot.in, but it must not be accepted.
+Repaired the sole release-blocking finding from independent verification 2
+(`fbd0a6224dad67aeb8b66d3ecc7673ed966d3939`) for candidate
+`e79554372f6dc27da16623c69bbb828a5fd5eec5`.
 
-## Release status: FAIL
+## Repair
 
-The live service worker never activates in a fresh browser. Its generated
-precache list includes `/staticwebapp.config.json`; the static host consumes
-that deployment configuration and returns 404 for it. The worker's atomic
-`cache.addAll()` install consequently fails, leaving no registration or
-controller. Offline reload and the promised update toast are therefore absent
-in production. This is a High-severity blocker for this offline PWA.
+The static host consumes `staticwebapp.config.json` during deployment, so the
+file correctly exists in `dist/` but returns 404 in production. The generated
+service worker had incorrectly added that deployment-only file to its atomic
+precache list. One 404 rejected `cache.addAll()`, preventing worker activation,
+offline reload, and the update toast.
 
-## What was verified
+- `vite.config.ts` now explicitly excludes deployment-control files from the
+  generated PWA precache while still leaving them in `dist/` for the host.
+- `scripts/verify-build.mjs` fails the production build if
+  `staticwebapp.config.json` is ever placed in the worker again.
+- `tests/product.spec.ts` has a desktop and 390px regression asserting the
+  generated worker contains a precache but excludes that deployment-only URL.
 
-From a detached clean worktree at the candidate:
+No product workflow, data schema, visual system, artifact class, or deployment
+configuration changed.
+
+## Verification before deployment
+
+Clean install and local checks on 2026-08-28:
 
 ```sh
-npm ci                 # 0 vulnerabilities
+npm ci                 # 61 packages, 0 vulnerabilities
 npm test               # 6 passed
-npm run lint           # passed
-npm run build          # passed; dist/ produced
-npm run test:e2e       # 25 passed, 1 intended skip
+npm run lint           # passed (tsc --noEmit)
+npm run build          # passed; dist/ created
+npm run test:e2e       # 27 passed, 1 intended mobile update-test skip
 npm run test:a11y      # 12 passed
 ```
 
-The live deployment matches the candidate SHA-256 for its HTML, manifest,
-worker, JS, CSS, and hero asset. Independent desktop and 390px live journeys
-covered creating a card, 600-minute boundary, session/check-in/stop flow,
-clean sharing, baseline error recovery, malformed backup rejection, legacy
-corrupt-record quarantine/removal, keyboard focus, reduced motion, and
-console/page errors. Axe found zero serious/critical issues across home,
-composer, privacy, and terms in both viewports. Browser requests stayed
-same-origin; records are IndexedDB-local and no trackers, remote fonts, or
-third-party scripts were observed. Initial JS/CSS are 13.6 KB/6.2 KB gzip.
+The fresh build produced PWA version `comfort-card-da463c02721e`. Its generated
+worker precaches the current JS/CSS, pages, artwork, icons, and offline page,
+but does **not** contain `staticwebapp.config.json`; `npm run verify:build`
+enforces that invariant. The app JS is 41.78 KB raw / 13.70 KB gzip and CSS is
+25.63 KB raw / 6.21 KB gzip; no fonts or source maps ship.
 
-See `.factory/verification-2.md` for commands, exact header/hash evidence,
-the PWA reproduction, and the one non-blocking security observation.
+Playwright exercised desktop and 390×844 mobile creation, keyboard-first form
+validation, malformed-backup rejection, corrupt local-record recovery,
+baseline bounds, IndexedDB persistence, private-share exclusion, offline reload
+via `context.setOffline(true)`, and the old-to-new worker update toast. Axe
+found zero serious or critical issues on home, composer, privacy, and terms in
+both projects; the suite also checks one h1, focusable skip link, no horizontal
+scroll, reduced console/page errors, and the new worker-precache regression.
 
-## Required next step
+Before the repair deployment, the current live site reproduced the verifier's
+root cause: `GET /staticwebapp.config.json` returned 404. Its response policy
+already had HSTS, `nosniff`, strict referrer policy, and a restrictive
+Permissions-Policy. Post-deployment identity, fresh-profile control, offline,
+update-toast, and response-header checks must be recorded below after the
+static deployment has propagated.
 
-Remove deployment-only `staticwebapp.config.json` from the service-worker
-precache, redeploy, and have a fresh profile prove live registration,
-controlled online reload, offline reload, and an old-to-new worker update
-toast. No product-code changes were made by this verifier.
+Lighthouse was not installed in this container; browser performance budgets,
+responsive checks, bundle sizes, console checks, and axe checks above completed
+successfully.
+
+## Run / deploy
+
+```sh
+npm ci
+npm test
+npm run lint
+npm run build
+npm run test:e2e
+npm run test:a11y
+```
+
+Deploy `dist/` as the existing static application. The deployment platform
+consumes `dist/staticwebapp.config.json`; it must not publish that control file
+as an application asset.
