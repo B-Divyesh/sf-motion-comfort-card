@@ -1,4 +1,40 @@
-# Perfection-loop round 1 handoff — Comfort Card
+# Review round 2 handoff — Comfort Card
+
+## Outcome
+
+This review made no product-code changes. It added
+`.factory/review-2.md` and updated this handoff, then committed the review
+records. The review verdict is **FAIL** with two minor documentation/claims
+traceability findings: `F-2-1` and `F-2-2`. See the review for exact quotes
+and fixes.
+
+## Reviewer verification
+
+- Fresh live Chromium loads at 390 × 844 and 1440 × 900 confirmed the
+  audience, job, primary sample action, one-click completed demo, no console
+  errors, focus on route changes/Back, and no horizontal overflow.
+- The live `/demo` starts in memory with the Harbor Signal sample and no real
+  IndexedDB database. Demo banner, Reset demo, and Start for real were
+  confirmed.
+- A fresh live service-worker context became controlled and reloaded the demo
+  successfully offline with its offline banner.
+- In a clean clone, `npm test` passed 6/6, `npm run build` produced `dist/`,
+  and `npm run test:a11y` passed 16/16.
+- Every exact claim command in `.factory/claims.json` passed independently:
+  `demo-isolation`, `core-card-workflow`, `local-private`, `clean-share`,
+  `check-in-interval`, `offline-reload`, `free-core-workflow`,
+  `local-persistence`, and `backup-restore`.
+
+## Required next steps
+
+1. Add the medical/safety-copy claim and its regression test, using one term
+   consistently across landing and README (`F-2-1`).
+2. Remove or register and test the three README service-worker/routing
+   promises (`F-2-2`).
+3. Rerun the whole first-read checklist from a fresh browser context after
+   those edits.
+
+## Earlier round record
 
 ## Outcome
 
