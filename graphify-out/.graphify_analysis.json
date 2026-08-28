@@ -97,6 +97,21 @@
       "src_model_comfortcard"
     ],
     "4": [
+      "src_main_cardslip",
+      "src_main_createview",
+      "src_main_decisionpanel",
+      "src_main_defaultdraft",
+      "src_main_endedsessionview",
+      "src_main_homeview",
+      "src_main_icon",
+      "src_main_notfoundview",
+      "src_main_recoveryview",
+      "src_main_routehref",
+      "src_main_sessionview",
+      "src_main_shell",
+      "src_main_stopdialog"
+    ],
+    "5": [
       "src_main",
       "src_main_appelement",
       "src_main_cards",
@@ -110,23 +125,19 @@
       "src_main_syncdraft",
       "src_main_updateofflinebanner"
     ],
-    "5": [
-      "src_main_createview",
-      "src_main_decisionpanel",
-      "src_main_defaultdraft",
-      "src_main_endedsessionview",
-      "src_main_icon",
-      "src_main_legalview",
-      "src_main_notfoundview",
-      "src_main_recoveryview",
-      "src_main_routehref",
-      "src_main_sessionview",
-      "src_main_shell",
-      "src_main_stopdialog"
-    ],
     "6": [
+      "src_main_findcard",
+      "src_main_findinvalidcard",
+      "src_main_isdemomode",
+      "src_main_legalview",
+      "src_main_loadcards",
+      "src_main_makedemocard",
+      "src_main_navigate",
+      "src_main_render",
+      "src_main_routeparts"
+    ],
+    "7": [
       "src_main_activesession",
-      "src_main_cardslip",
       "src_main_cardview",
       "src_main_deletedialog",
       "src_main_escapehtml",
@@ -135,26 +146,7 @@
       "src_model_finishedsessionminutes",
       "src_model_longestsession"
     ],
-    "7": [
-      "src_main_findcard",
-      "src_main_findinvalidcard",
-      "src_main_homeview",
-      "src_main_isdemomode",
-      "src_main_loadcards",
-      "src_main_makedemocard",
-      "src_main_navigate",
-      "src_main_render",
-      "src_main_routeparts"
-    ],
     "8": [
-      "promises",
-      "test",
-      "tests_claims_spec",
-      "tests_claims_spec_enterrealapp",
-      "tests_claims_spec_makerealcard",
-      "tests_product_spec"
-    ],
-    "9": [
       "src_main_checkinview",
       "src_main_formattimer",
       "src_main_startdialog",
@@ -162,13 +154,20 @@
       "src_main_symptomchoices",
       "src_model_elapsedms"
     ],
-    "10": [
+    "9": [
       "vite_config",
       "vite_config_filesin",
       "vite_config_nonshellfiles",
       "vite_config_publicurl",
       "vite_config_root",
       "vite_config_versionedpwa"
+    ],
+    "10": [
+      "promises",
+      "tests_claims_spec",
+      "tests_claims_spec_enterrealapp",
+      "tests_claims_spec_makerealcard",
+      "tests_product_spec"
     ],
     "11": [
       "scripts_verify_build",
@@ -193,13 +192,13 @@
     "1": 0.2,
     "2": 0.09090909090909091,
     "3": 0.21978021978021978,
-    "4": 0.19696969696969696,
-    "5": 0.3484848484848485,
+    "4": 0.358974358974359,
+    "5": 0.19696969696969696,
     "6": 0.3333333333333333,
-    "7": 0.3055555555555556,
+    "7": 0.35714285714285715,
     "8": 0.3333333333333333,
     "9": 0.3333333333333333,
-    "10": 0.3333333333333333,
+    "10": 0.4,
     "11": 0.6666666666666666,
     "12": 1.0,
     "13": 1.0,
@@ -282,17 +281,6 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "endedSessionView()",
-      "target": "finishedSessionMinutes()",
-      "source_files": [
-        "src/main.ts",
-        "src/model.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
       "source": "loadCards()",
       "target": "getCards()",
       "source_files": [
@@ -304,8 +292,19 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "sessionView()",
-      "target": "elapsedMs()",
+      "source": "endedSessionView()",
+      "target": "finishedSessionMinutes()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "cardSlip()",
+      "target": "longestSession()",
       "source_files": [
         "src/main.ts",
         "src/model.ts"
