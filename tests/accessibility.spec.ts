@@ -19,3 +19,12 @@ test('keeps one h1 and designed focus at 390px', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
   await expect(page.locator('body')).not.toHaveCSS('overflow-x', 'scroll');
 });
+
+test('loads without console or page errors', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  expect(errors).toEqual([]);
+});
