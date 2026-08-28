@@ -126,13 +126,12 @@ function shell(content: string): string {
       ${demo ? '<div class="demo-banner" role="status"><strong>Demo — sample data, nothing is saved</strong><span><button type="button" data-action="reset-demo">Reset demo</button><a href="/" data-action="start-real">Start for real</a></span></div>' : ''}
       <div class="offline-banner" data-offline-banner role="status" ${navigator.onLine ? 'hidden' : ''}>Offline mode · your saved cards still work</div>
     </header>
-    <main id="main-content" tabindex="-1">${content}</main>
+    <main id="main-content" tabindex="-1">${content}<input id="import-file" class="visually-hidden" type="file" accept="application/json,.json" aria-label="Choose a Comfort Card export" /></main>
     <footer class="site-footer">
       <div><span class="footer-stamp">Saved on this device</span><p>Plan game settings before motion sickness starts.</p></div>
       <nav aria-label="Legal"><a href="/privacy/" data-route>Privacy</a><a href="/terms/" data-route>Terms</a></nav>
       <p class="image-note">Risograph illustration. No ads or trackers.<br /><span>Built by Param Factory</span> · Build ${BUILD_ID}</p>
     </footer>
-    <input id="import-file" class="visually-hidden" type="file" accept="application/json,.json" aria-label="Choose a Comfort Card export" />
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     <div id="update-toast" class="update-toast" role="status" hidden><span>A fresh version is ready.</span><button type="button" data-action="reload-app">Update now</button></div>
   `;

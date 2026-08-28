@@ -2,12 +2,11 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 for (const path of ['/', '/new', '/demo', '/privacy/', '/terms/', '/definitely-missing']) {
-  test(`has no serious accessibility violations at ${path}`, async ({ page }) => {
+  test(`has no accessibility violations at ${path}`, async ({ page }) => {
     await page.goto(path);
     await expect(page.locator('main')).toBeVisible();
     const result = await new AxeBuilder({ page }).analyze();
-    const important = result.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''));
-    expect(important, important.map((violation) => `${violation.id}: ${violation.help}`).join('\n')).toEqual([]);
+    expect(result.violations, result.violations.map((violation) => `${violation.impact} ${violation.id}: ${violation.help}`).join('\n')).toEqual([]);
   });
 }
 
