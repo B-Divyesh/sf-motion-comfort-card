@@ -49,7 +49,7 @@ Results from the final local run on 2026-08-28:
 - `npm test`: 6/6 Vitest tests passed.
 - `npm run lint`: TypeScript `--noEmit` passed.
 - `npm run build`: passed and produced `dist/index.html`; the built PWA version
-  was `comfort-card-0d99f9730963`. `verify:build` confirmed matching manifest
+  was `comfort-card-d860df4e7510`. `verify:build` confirmed matching manifest
   and worker versions, resolved placeholders, and precaching of the current JS
   bundle. JS is 41.78 KB raw / 13.70 KB gzip; CSS is 25.63 KB raw / 6.21 KB
   gzip; no font payload or source maps are shipped.
