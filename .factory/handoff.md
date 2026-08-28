@@ -64,6 +64,22 @@ Results from the final local run on 2026-08-28:
   also confirms one h1, skip-link keyboard focus, no horizontal overflow, and
   no console/page errors on load.
 
+## Deployment and live verification
+
+- Pushed repair commits `2e72d50`, `7626021`, and `3b558b8` to `main` and
+  deployed the static `dist/` artifact to
+  `https://motion-comfort-card.sociobot.in` on 2026-08-28.
+- Live identity matched the final artifact:
+  `/assets/main-BE6wTLUz.js` and manifest start URL
+  `/?v=comfort-card-d860df4e7510`.
+- The factory live verifier returned HTTPS 200 in 809 ms with no browser
+  console/page errors; title, `lang=en`, one h1, main landmark, image alt
+  coverage, and labeled buttons all passed.
+- Live response checks confirmed HSTS, `nosniff`, strict referrer policy,
+  restrictive Permissions-Policy, a manifest MIME type of
+  `application/manifest+json`, and immutable one-year cache control on hashed
+  JS assets.
+
 ## Product and privacy notes
 
 The artifact remains a static Vite TypeScript offline PWA. Data is still
