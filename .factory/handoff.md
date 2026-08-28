@@ -1,36 +1,36 @@
-# Perfection loop round 1 handoff — Comfort Card
+# Perfection-loop round 1 handoff — Comfort Card
 
 ## Outcome
 
-Repaired release candidate `e6c2838247f7ebec0781e2424591f8b9310f86d0` against every finding in `.factory/review-1.md`.
+Commit `bbc9fd0` completes the remaining release-candidate polish and is deployed at <https://motion-comfort-card.sociobot.in> (Azure Static Web Apps deployment `3f35f84a-f1fd-4e0f-93ee-0ee1d4319e9e`). It preserves the warm-paper, two-ink risograph field-note identity.
 
-- B1: The first screen now says “Plan game settings before motion sickness starts.” It names players affected by game motion, presents one-click sample data, and lists free, local-storage, and offline facts.
-- B2/B4: `/demo` and `/?demo=1` open a completed Harbor Signal card. The persistent banner offers “Reset demo” and “Start for real.” Demo state stays in memory and never opens the real `comfort-card-local` database.
-- B3: `.factory/claims.json` registers nine reliance claims. Each ID appears on exactly one Playwright test, and every manifest command passed independently from a clean clone.
-- M1/M2/N2: Replaced the review’s metaphors, jargon, and vague actions with plain player language. `.factory/copy-audit.md` records landing and README word counts and terminology.
-- M3/B4: Added route-aware titles, descriptions, canonicals, Open Graph/Twitter metadata, a 1200×630 product-art social image, Apple touch icon, `/demo` sitemap entry, explicit app route rewrites, security headers, and a designed HTTP 404.
-- M4: History navigation restores scroll, moves focus to the new h1, and updates a persistent polite live region.
-- N1: The shared header links Demo, Make a card, and Privacy. The footer links Privacy and Terms and includes the factory credit and build ID.
-- Mobile: The first screen and complete demo card were visually checked at 390×844. Controls stack without horizontal overflow and remain at least 44 px tall.
-- PWA: The versioned service worker caches the app shell and demo route behavior. The large social preview is excluded from precache. Offline demo reload is covered by a claim test.
+- The first screen names the job and audience plainly, gives a one-click `?demo=1` sample path, and states the free, local, and offline facts.
+- `/demo` and `?demo=1` show the completed Harbor Signal card with an isolated in-memory source, Reset demo, and Start for real. A fresh direct demo visit does not open `comfort-card-local`.
+- `.factory/claims.json` contains nine reliance claims, each with one tagged demo-based Playwright test.
+- Routing has per-route metadata, a real styled 404, legal pages, history restoration, and focus/live announcement behavior. This pass extended that focus behavior to Demo, Privacy, Terms, the sample action, and the legal return link; mode switches load the new data source before rendering.
+- Header/footer, mobile layout, README/copy audit, catalog description, demo documentation, PWA caching, and local-only export/backup behavior meet the review record. See `.factory/polish-1.md` for a finding-by-finding map.
 
-The existing warm-paper, two-ink risograph field-note identity remains intact. The social preview is cropped from the accepted generated source art; provenance is recorded in `.factory/design.md`.
+## Exact verification evidence
 
-## Clean-clone verification
+### Clean clone
 
-Verified commit `f2a7371d46b7b8acb24765857d606b85980d2bfe` in `/tmp/comfort-clean.26sqTS/repo` on 2026-08-28.
+Verified `bbc9fd0` from `/tmp/comfort-card-clean.xGtvKY/repo` on 2026-08-28.
 
-- `npm ci`: passed; 61 packages installed, 0 vulnerabilities.
-- `npm test`: passed, 6/6 unit tests.
-- `npm run build`: passed; `dist/index.html` exists. Main JS is 47.18 KB raw / 15.42 KB gzip. CSS is 27.22 KB raw / 6.53 KB gzip.
-- Every command in `.factory/claims.json`: passed independently; nine claims × desktop and mobile = 18 passing checks.
-- `npm run test:e2e`: 63 passed, 1 intentionally skipped. The skipped mobile duplicate is the service-worker update-install transition; it passed in the desktop project. The suite covers the full workflow, keyboard use, validation/recovery, direct routes, Back/focus/scroll, metadata/legal links, 390 px layout, demo reset/isolation, privacy traffic interception, downloads/imports, and offline reload.
-- `npm run test:a11y`: 16/16 passed. Axe found no serious or critical issues on home, new card, demo, privacy, terms, or 404 routes in desktop and 390 px projects.
-- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4176 ...`: passed with title, `lang=en`, one h1, main landmark, all image alt attributes, labeled buttons, and zero console/page errors.
-- Lighthouse 12.8.2 mobile: performance 100, accessibility 100, best practices 100, SEO 100; LCP 1.5 s, CLS 0, TBT 50 ms.
-- Azure Static Web Apps CLI 2.0.10 route check: `/`, `/demo`, `/new`, `/card/*`, `/session/*`, `/check-in/*`, `/privacy/`, and `/terms/` returned 200; `/definitely-missing` returned 404.
+- `npm ci`: passed (61 packages, 0 vulnerabilities).
+- `npm test`: passed, 6 unit tests.
+- `npm run build`: passed; `dist/index.html` exists. Main JavaScript is 47.40 KB raw / 15.46 KB gzip; CSS is 27.22 KB raw / 6.53 KB gzip.
+- Every command named in `.factory/claims.json` passed independently from that fresh clone: `demo-isolation`, `core-card-workflow`, `local-private`, `clean-share`, `check-in-interval`, `offline-reload`, `free-core-workflow`, `local-persistence`, and `backup-restore`. Each ran in desktop and 390 px projects (18 passing claim executions).
 
-## Run locally
+### Final workspace and live checks
+
+- `npm run test:e2e`: passed (full 66-test desktop/mobile browser suite, including demo, privacy traffic, downloads/imports, offline reload, routes, 404, focus, and mobile layout).
+- `npm run test:a11y`: passed (16 Axe checks, no serious or critical issues). The required Axe coverage is the Playwright Axe integration; the standalone Axe CLI could not locate its Selenium Chrome binary in this container.
+- `/opt/fleet/lib/verify-url.sh` passed locally for `/` and `/demo`, then cold against the live home and live demo: title, `lang=en`, one h1, main landmark, complete image alt text, labeled buttons, and zero page errors. Captures and JSON reports: `.factory/evidence/local/` and `.factory/evidence/live/`.
+- A fresh live 390 × 844 browser re-check passed the hero, one-click query demo, direct-demo IndexedDB isolation, Reset demo, route-heading focus, and styled 404. See `.factory/evidence/live/cold-recheck.json`. The expected network message for the deliberately requested HTTP 404 is not a page error.
+- Live HTTP checks: `/`, `/demo`, `/privacy/`, and `/terms/` returned 200; `/definitely-missing` returned 404. Security headers are served by the static work app configuration.
+- Lighthouse 12.8.2 against the deployed home: performance 100, accessibility 100, best practices 100, SEO 100; LCP 1.2 s, CLS 0, TBT 80 ms. Full report: `.factory/evidence/live/lighthouse.json`.
+
+## Run or deploy
 
 ```sh
 npm ci
@@ -40,17 +40,8 @@ npm run test:e2e
 npm run test:a11y
 ```
 
-Run each claim command exactly as listed in `.factory/claims.json`. Open `/demo` or `/?demo=1` to inspect the isolated sample manually.
+Run each command listed in `.factory/claims.json` separately for claim-level verification. Deploy `dist/` as the static app; the work-order deployment used `/opt/fleet/lib/deploy-static.sh motion-comfort-card dist`.
 
 ## Known gaps and next steps
 
-No blocking review finding or known product defect remains.
-
-## Deployment evidence
-
-- Pushed the repair and verification record to `origin/main` through commit `fc3e8c1`.
-- Deployed `dist/` with the work order’s static deployer to [motion-comfort-card.sociobot.in](https://motion-comfort-card.sociobot.in) (Azure deployment `56297333-030e-405f-bba6-5be3316dbc96`).
-- The worker URL verifier passed live: title present, `lang=en`, one h1, main landmark, complete image alt text, labeled buttons, and no console/page errors.
-- Live HTTP checks returned 200 for home, demo, privacy, and terms; `/definitely-missing` returned 404. CSP, Referrer-Policy, Permissions-Policy, and X-Content-Type-Options headers are present.
-- A fresh 390×844 live Chromium context opened `/?demo=1` with the Demo title and Harbor Signal sample. Its IndexedDB database list stayed empty; Reset restored the sample; an offline reload retained it.
-- The complete live demo flow made zero third-party requests and logged zero console/page errors.
+None. No review finding, including the previously minor navigation/footer and copy items, remains unresolved.

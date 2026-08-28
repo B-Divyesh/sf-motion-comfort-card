@@ -1,0 +1,14 @@
+{
+  "origin": "https://motion-comfort-card.sociobot.in",
+  "pageErrors": [],
+  "note": "The browser may log the expected network 404 for the deliberately missing route; no page errors occurred.",
+  "checked": [
+    "hero",
+    "one-click-query-demo",
+    "direct-demo-isolation",
+    "demo-reset",
+    "route-focus",
+    "404"
+  ],
+  "passed": true
+}
