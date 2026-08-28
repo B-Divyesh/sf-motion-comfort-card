@@ -1,0 +1,92 @@
+{
+  ".factory/brief.json": {
+    "mtime": 1787879828.7250123,
+    "seen": 1787879830.1219103,
+    "ast_hash": "6efe5b38b71be03947800f569634fcf0",
+    "semantic_hash": "6efe5b38b71be03947800f569634fcf0"
+  },
+  "assets/src/comfort-card-hero-v2.json": {
+    "mtime": 1787879828.7290125,
+    "seen": 1787879830.1219146,
+    "ast_hash": "568da2bd7700bbfeb600ead9d6ec5b24",
+    "semantic_hash": "568da2bd7700bbfeb600ead9d6ec5b24"
+  },
+  "assets/src/comfort-card-hero-v2.png.json": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.121916,
+    "ast_hash": "29b0e887f3e4d25e7bb25e3cd5edb9ae",
+    "semantic_hash": "29b0e887f3e4d25e7bb25e3cd5edb9ae"
+  },
+  "package.json": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.121917,
+    "ast_hash": "c47fa72f60512525cd831ead730cbc3b",
+    "semantic_hash": "c47fa72f60512525cd831ead730cbc3b"
+  },
+  "playwright.config.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.121918,
+    "ast_hash": "e35729f3b93b00246a49a99ab8c73c77",
+    "semantic_hash": "e35729f3b93b00246a49a99ab8c73c77"
+  },
+  "public/sw.js": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.121919,
+    "ast_hash": "28439c44cd4303ff1e07c22b5da07379",
+    "semantic_hash": "28439c44cd4303ff1e07c22b5da07379"
+  },
+  "src/db.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219206,
+    "ast_hash": "f30451a3fff6928c48278e605e2230c0",
+    "semantic_hash": "f30451a3fff6928c48278e605e2230c0"
+  },
+  "src/main.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219213,
+    "ast_hash": "88bcf36232a691f7e4c7cc8699ba5982",
+    "semantic_hash": "88bcf36232a691f7e4c7cc8699ba5982"
+  },
+  "src/model.test.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219223,
+    "ast_hash": "20a6ddf3d82675ef4fce423934f24937",
+    "semantic_hash": "20a6ddf3d82675ef4fce423934f24937"
+  },
+  "src/model.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219234,
+    "ast_hash": "c9d6122435e6edb3cfa10918db01ec63",
+    "semantic_hash": "c9d6122435e6edb3cfa10918db01ec63"
+  },
+  "src/vite-env.d.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219244,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "tests/accessibility.spec.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219256,
+    "ast_hash": "c5ad4ea7634bb7dd200cc0d3bd7d7425",
+    "semantic_hash": "c5ad4ea7634bb7dd200cc0d3bd7d7425"
+  },
+  "tests/product.spec.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219263,
+    "ast_hash": "dda4bb38b552f0eacb0cd5e685c0d718",
+    "semantic_hash": "dda4bb38b552f0eacb0cd5e685c0d718"
+  },
+  "tsconfig.json": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219275,
+    "ast_hash": "52d83281080088c383505de6e347c69f",
+    "semantic_hash": "52d83281080088c383505de6e347c69f"
+  },
+  "vite.config.ts": {
+    "mtime": 1787879828.7410128,
+    "seen": 1787879830.1219285,
+    "ast_hash": "0f5f0dd2ce291419d380e6799cba0de6",
+    "semantic_hash": "0f5f0dd2ce291419d380e6799cba0de6"
+  }
+}
