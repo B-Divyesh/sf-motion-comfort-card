@@ -1,6 +1,33 @@
 {
   "communities": {
     "0": [
+      "src_model",
+      "src_model_buildsharepayload",
+      "src_model_checkin",
+      "src_model_default_settings",
+      "src_model_iscomfortcard",
+      "src_model_isknowntriggerarray",
+      "src_model_isrecord",
+      "src_model_isstringarray",
+      "src_model_istext",
+      "src_model_istimestamp",
+      "src_model_iswholenumber",
+      "src_model_makecard",
+      "src_model_makesession",
+      "src_model_max_baseline_minutes",
+      "src_model_parseimport",
+      "src_model_session",
+      "src_model_setting",
+      "src_model_sharepayload",
+      "src_model_sharetext",
+      "src_model_test",
+      "src_model_triggers",
+      "src_model_uid",
+      "src_model_validcheckin",
+      "src_model_validsession",
+      "src_model_validsetting"
+    ],
+    "1": [
       "ref_dom",
       "ref_dom_iterable",
       "ref_es2022",
@@ -24,50 +51,7 @@
       "tsconfig_compileroptions_usedefineforclassfields",
       "tsconfig_include"
     ],
-    "1": [
-      "src_model",
-      "src_model_buildsharepayload",
-      "src_model_checkin",
-      "src_model_iscomfortcard",
-      "src_model_isknowntriggerarray",
-      "src_model_isrecord",
-      "src_model_isstringarray",
-      "src_model_istext",
-      "src_model_istimestamp",
-      "src_model_iswholenumber",
-      "src_model_makecard",
-      "src_model_makesession",
-      "src_model_parseimport",
-      "src_model_sharepayload",
-      "src_model_sharetext",
-      "src_model_test",
-      "src_model_uid",
-      "src_model_validcheckin",
-      "src_model_validsession",
-      "src_model_validsetting"
-    ],
     "2": [
-      "src_main",
-      "src_main_appelement",
-      "src_main_cards",
-      "src_main_closedialog",
-      "src_main_downloadjson",
-      "src_main_draft",
-      "src_main_formattimer",
-      "src_main_invalidcards",
-      "src_main_opendialog",
-      "src_main_persist",
-      "src_main_showtoast",
-      "src_main_starttimer",
-      "src_main_syncdraft",
-      "src_model_default_settings",
-      "src_model_elapsedms",
-      "src_model_max_baseline_minutes",
-      "src_model_session",
-      "src_model_setting",
-      "src_model_triggers"
-    ],
-    "3": [
       "package",
       "package_name",
       "package_private",
@@ -82,6 +66,22 @@
       "package_scripts_verify_build",
       "package_type",
       "package_version"
+    ],
+    "3": [
+      "src_db_savecard",
+      "src_main",
+      "src_main_appelement",
+      "src_main_cards",
+      "src_main_closedialog",
+      "src_main_downloadjson",
+      "src_main_draft",
+      "src_main_formattimer",
+      "src_main_invalidcards",
+      "src_main_opendialog",
+      "src_main_persist",
+      "src_main_showtoast",
+      "src_main_starttimer",
+      "src_main_syncdraft"
     ],
     "4": [
       "axe_core_playwright",
@@ -108,17 +108,30 @@
       "src_db_opendatabase",
       "src_db_removecard",
       "src_db_requestresult",
-      "src_db_savecard",
+      "src_main_loadcards",
       "src_model_backuppayload",
       "src_model_comfortcard"
     ],
     "6": [
+      "src_main_activesession",
+      "src_main_cardslip",
+      "src_main_cardview",
+      "src_main_decisionpanel",
+      "src_main_deletedialog",
+      "src_main_endedsessionview",
+      "src_main_escapehtml",
+      "src_main_homeview",
+      "src_main_icon",
+      "src_main_sessionview",
+      "src_main_sharedialog",
+      "src_main_stopdialog"
+    ],
+    "7": [
       "src_main_createview",
       "src_main_defaultdraft",
       "src_main_findcard",
       "src_main_findinvalidcard",
       "src_main_legalview",
-      "src_main_loadcards",
       "src_main_notfoundview",
       "src_main_recoveryview",
       "src_main_render",
@@ -126,69 +139,55 @@
       "src_main_shell",
       "src_main_updateofflinebanner"
     ],
-    "7": [
-      "src_main_activesession",
-      "src_main_cardslip",
-      "src_main_cardview",
-      "src_main_deletedialog",
-      "src_main_escapehtml",
-      "src_main_homeview",
-      "src_main_sessionsview",
-      "src_main_sharedialog",
-      "src_model_finishedsessionminutes",
-      "src_model_longestsession"
-    ],
     "8": [
-      "src_main_decisionpanel",
-      "src_main_endedsessionview",
-      "src_main_icon",
-      "src_main_sessionview",
-      "src_main_stopdialog"
-    ],
-    "9": [
       "vite_config",
       "vite_config_filesin",
       "vite_config_publicurl",
       "vite_config_root",
       "vite_config_versionedpwa"
     ],
-    "10": [
+    "9": [
       "src_main_checkinview",
       "src_main_startdialog",
-      "src_main_symptomchoices"
+      "src_main_symptomchoices",
+      "src_model_elapsedms"
+    ],
+    "10": [
+      "src_main_sessionsview",
+      "src_model_finishedsessionminutes",
+      "src_model_longestsession"
     ],
     "11": [
-      "promises",
-      "tests_product_spec"
-    ],
-    "12": [
       "scripts_verify_build",
       "scripts_verify_build_parsedmanifest"
     ],
-    "13": [
+    "12": [
       "playwright_config"
     ],
-    "14": [
+    "13": [
       "public_sw"
     ],
-    "15": [
+    "14": [
       "src_vite_env_d"
     ],
-    "16": [
+    "15": [
       "tests_accessibility_spec"
+    ],
+    "16": [
+      "tests_product_spec"
     ]
   },
   "cohesion": {
-    "0": 0.09090909090909091,
-    "1": 0.2894736842105263,
-    "2": 0.1286549707602339,
-    "3": 0.14285714285714285,
+    "0": 0.2,
+    "1": 0.09090909090909091,
+    "2": 0.14285714285714285,
+    "3": 0.18681318681318682,
     "4": 0.15384615384615385,
-    "5": 0.2727272727272727,
-    "6": 0.21212121212121213,
-    "7": 0.3111111111111111,
-    "8": 0.7,
-    "9": 0.4,
+    "5": 0.24242424242424243,
+    "6": 0.3484848484848485,
+    "7": 0.23636363636363636,
+    "8": 0.4,
+    "9": 0.5,
     "10": 0.6666666666666666,
     "11": 1.0,
     "12": 1.0,
@@ -204,13 +203,13 @@
       "degree": 15
     },
     {
-      "id": "tsconfig_compileroptions",
-      "label": "compilerOptions",
+      "id": "src_main_icon",
+      "label": "icon()",
       "degree": 14
     },
     {
-      "id": "src_main_icon",
-      "label": "icon()",
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
       "degree": 14
     },
     {
@@ -219,14 +218,19 @@
       "degree": 12
     },
     {
+      "id": "src_main_cardview",
+      "label": "cardView()",
+      "degree": 11
+    },
+    {
       "id": "src_main_escapehtml",
       "label": "escapeHtml()",
       "degree": 11
     },
     {
-      "id": "src_main_cardview",
-      "label": "cardView()",
-      "degree": 11
+      "id": "src_model_parseimport",
+      "label": "parseImport()",
+      "degree": 10
     },
     {
       "id": "src_main_shell",
@@ -236,11 +240,6 @@
     {
       "id": "src_main_sessionview",
       "label": "sessionView()",
-      "degree": 10
-    },
-    {
-      "id": "src_model_parseimport",
-      "label": "parseImport()",
       "degree": 10
     },
     {
@@ -262,28 +261,6 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "loadCards()",
-      "target": "getCards()",
-      "source_files": [
-        "src/main.ts",
-        "src/db.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
-      "source": "persist()",
-      "target": "saveCard()",
-      "source_files": [
-        "src/main.ts",
-        "src/db.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
       "source": "shareDialog()",
       "target": "shareText()",
       "source_files": [
@@ -295,8 +272,30 @@
       "why": "bridges separate communities"
     },
     {
+      "source": "startTimer()",
+      "target": "elapsedMs()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
       "source": "sessionView()",
       "target": "elapsedMs()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "cardSlip()",
+      "target": "longestSession()",
       "source_files": [
         "src/main.ts",
         "src/model.ts"
