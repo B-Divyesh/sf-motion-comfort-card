@@ -1,98 +1,47 @@
-# Comfort Card repair handoff
+# Comfort Card verification handoff — FAIL
 
-**Verification status: PASS locally** — repair of verifier report 1 for base
-candidate `a0635577582739f6cd42d93d5a88f7252e072de5`.
+Independent verification on 2026-08-28 found that candidate
+`e79554372f6dc27da16623c69bbb828a5fd5eec5` is deployed byte-for-byte at
+https://motion-comfort-card.sociobot.in, but it must not be accepted.
 
-## What changed
+## Release status: FAIL
 
-- Full JSON backups now undergo strict, recursive validation before any local
-  write. Every card, setting, session, check-in, date, id, boolean, symptom
-  value, trigger list, and 0–600 minute baseline is checked. A bad card rejects
-  the entire backup with “Nothing was restored.” The restore write is a single
-  IndexedDB transaction.
-- Existing malformed records from the previously vulnerable importer are
-  quarantined from normal card routes. The home screen presents a recovery
-  notice; opening its review link provides an explicit, scoped removal action.
-  A malformed card can no longer crash `cardView()` or strand the user.
-- The baseline field now enforces a whole-number range of 0–600 in application
-  logic, announces the error, focuses the field, and preserves the rest of the
-  draft while it is corrected. Model construction also caps programmatic input
-  at 600 and backup validation rejects larger values.
-- The production build now derives a content fingerprint after Vite writes its
-  files. It writes that fingerprint into the service-worker cache names and
-  manifest `start_url`, precaches the current hashed app bundle, and fails the
-  build if the manifest and worker versions differ or a placeholder remains.
-  Production source maps are no longer shipped.
-- Static Web Apps response policy now lives in source: hashed assets and icons
-  receive immutable one-year caching, the manifest is served as
-  `application/manifest+json`, and a restrictive Permissions-Policy disables
-  camera, geolocation, microphone, and payment features.
-- Added regression coverage for the exact malformed-backup payload, no-write
-  guarantee, malformed local-record recovery/removal, baseline boundary on
-  desktop and 390px mobile, and a real old-to-new service-worker update that
-  displays the in-app update action.
+The live service worker never activates in a fresh browser. Its generated
+precache list includes `/staticwebapp.config.json`; the static host consumes
+that deployment configuration and returns 404 for it. The worker's atomic
+`cache.addAll()` install consequently fails, leaving no registration or
+controller. Offline reload and the promised update toast are therefore absent
+in production. This is a High-severity blocker for this offline PWA.
 
-## Run and verify
+## What was verified
+
+From a detached clean worktree at the candidate:
 
 ```sh
-npm ci
-npm test
-npm run lint
-npm run build
-npm run test:e2e
-npm run test:a11y
+npm ci                 # 0 vulnerabilities
+npm test               # 6 passed
+npm run lint           # passed
+npm run build          # passed; dist/ produced
+npm run test:e2e       # 25 passed, 1 intended skip
+npm run test:a11y      # 12 passed
 ```
 
-Results from the final local run on 2026-08-28:
+The live deployment matches the candidate SHA-256 for its HTML, manifest,
+worker, JS, CSS, and hero asset. Independent desktop and 390px live journeys
+covered creating a card, 600-minute boundary, session/check-in/stop flow,
+clean sharing, baseline error recovery, malformed backup rejection, legacy
+corrupt-record quarantine/removal, keyboard focus, reduced motion, and
+console/page errors. Axe found zero serious/critical issues across home,
+composer, privacy, and terms in both viewports. Browser requests stayed
+same-origin; records are IndexedDB-local and no trackers, remote fonts, or
+third-party scripts were observed. Initial JS/CSS are 13.6 KB/6.2 KB gzip.
 
-- `npm ci`: 61 packages installed; 0 vulnerabilities.
-- `npm test`: 6/6 Vitest tests passed.
-- `npm run lint`: TypeScript `--noEmit` passed.
-- `npm run build`: passed and produced `dist/index.html`; the built PWA version
-  was `comfort-card-d860df4e7510`. `verify:build` confirmed matching manifest
-  and worker versions, resolved placeholders, and precaching of the current JS
-  bundle. JS is 41.78 KB raw / 13.70 KB gzip; CSS is 25.63 KB raw / 6.21 KB
-  gzip; no font payload or source maps are shipped.
-- `npm run test:e2e`: 25 passed, 1 intentionally skipped. Chromium desktop and
-  390×844 mobile cover the complete card/session workflow, keyboard creation,
-  the import/recovery/baseline regressions, offline cached reload, and the
-  desktop service-worker old-to-new update/toast transition. The update test
-  runs once against the shared production build; mobile executes every other
-  workflow regression.
-- `npm run test:a11y`: 12/12 passed. Axe found no serious or critical issues
-  on home, composer, privacy, or terms in desktop and 390px views. The suite
-  also confirms one h1, skip-link keyboard focus, no horizontal overflow, and
-  no console/page errors on load.
+See `.factory/verification-2.md` for commands, exact header/hash evidence,
+the PWA reproduction, and the one non-blocking security observation.
 
-## Deployment and live verification
+## Required next step
 
-- Pushed repair commits `2e72d50`, `7626021`, and `3b558b8` to `main` and
-  deployed the static `dist/` artifact to
-  `https://motion-comfort-card.sociobot.in` on 2026-08-28.
-- Live identity matched the final artifact:
-  `/assets/main-BE6wTLUz.js` and manifest start URL
-  `/?v=comfort-card-d860df4e7510`.
-- The factory live verifier returned HTTPS 200 in 809 ms with no browser
-  console/page errors; title, `lang=en`, one h1, main landmark, image alt
-  coverage, and labeled buttons all passed.
-- Live response checks confirmed HSTS, `nosniff`, strict referrer policy,
-  restrictive Permissions-Policy, a manifest MIME type of
-  `application/manifest+json`, and immutable one-year cache control on hashed
-  JS assets.
-
-## Product and privacy notes
-
-The artifact remains a static Vite TypeScript offline PWA. Data is still
-IndexedDB-only, exports remain local and user-directed, and no analytics,
-remote fonts, third-party runtime scripts, or payment paths were added. The
-existing visual thesis, original asset provenance, non-medical language, and
-all passing creation/session/share behavior were preserved.
-
-## Known limits
-
-- Game setting names continue to vary by game and platform; the product offers
-  general things to look for rather than compatibility promises.
-- The reminder is in-app and does not send background notifications once the
-  PWA is closed.
-- Browser storage may be cleared by the user or device; the full private JSON
-  backup remains the recovery path for valid records.
+Remove deployment-only `staticwebapp.config.json` from the service-worker
+precache, redeploy, and have a fresh profile prove live registration,
+controlled online reload, offline reload, and an old-to-new worker update
+toast. No product-code changes were made by this verifier.
