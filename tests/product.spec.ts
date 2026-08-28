@@ -190,8 +190,21 @@ test('opens the isolated query-string demo from the first screen in one click', 
   await page.getByRole('link', { name: 'Try it with sample data' }).click();
   await expect(page).toHaveURL(/\?demo=1$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Harbor Signal');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
+});
+
+test('moves focus and keeps real cards hidden when navigation enters or leaves the demo', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Harbor Signal');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await page.getByRole('link', { name: 'Privacy', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/privacy\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your notes stay yours.');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toHaveText('Your notes stay yours.');
 });
 
 test('keeps demo mode, title, and focus through internal navigation and Back', async ({ page }) => {

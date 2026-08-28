@@ -41,7 +41,7 @@ let timerInterval = 0;
 let afterCheckIn = false;
 let deferredInstall: Event | null = null;
 
-const BUILD_ID = 'e6c2838-r1';
+const BUILD_ID = 'polish-1';
 const PRODUCT_ORIGIN = 'https://motion-comfort-card.sociobot.in';
 
 function makeDemoCard(): ComfortCard {
@@ -117,9 +117,9 @@ function shell(content: string): string {
       <div class="header-inner">
         <a class="brand" href="${routeHref()}" data-route aria-label="Comfort Card home"><span class="brand-mark" aria-hidden="true">CC</span><span>Comfort Card</span></a>
         <nav aria-label="Primary">
-          <a href="/demo" ${demo ? 'aria-current="page"' : ''}>Demo</a>
+          <a href="/demo" data-route ${demo ? 'aria-current="page"' : ''}>Demo</a>
           <a href="${routeHref('new')}" data-route>Make a card</a>
-          <a href="/privacy/">Privacy</a>
+          <a href="/privacy/" data-route>Privacy</a>
         </nav>
       </div>
       ${demo ? '<div class="demo-banner" role="status"><strong>Demo — sample data, nothing is saved</strong><span><button type="button" data-action="reset-demo">Reset demo</button><a href="/" data-action="start-real">Start for real</a></span></div>' : ''}
@@ -128,7 +128,7 @@ function shell(content: string): string {
     <main id="main-content" tabindex="-1">${content}</main>
     <footer class="site-footer">
       <div><span class="footer-stamp">Saved on this device</span><p>Plan game settings before motion sickness starts.</p></div>
-      <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+      <nav aria-label="Legal"><a href="/privacy/" data-route>Privacy</a><a href="/terms/" data-route>Terms</a></nav>
       <p class="image-note">Risograph illustration. No ads or trackers.<br /><span>Built by Param Factory</span> · Build ${BUILD_ID}</p>
     </footer>
     <input id="import-file" class="visually-hidden" type="file" accept="application/json,.json" aria-label="Choose a Comfort Card export" />
@@ -155,7 +155,7 @@ function homeView(): string {
         <p class="eyebrow">A private game-motion plan</p>
         <h1>Plan game settings before motion sickness starts.</h1>
         <p class="hero-lede">For players who feel sick from game motion; make a private settings plan and check in every 15 minutes.</p>
-        <div class="hero-actions"><a class="button button-primary" href="/?demo=1">Try it with sample data</a><span class="action-note">Opens a completed game card.</span><a class="button" href="${routeHref('new')}" data-route>${icon('plus')} Make your own card</a></div>
+        <div class="hero-actions"><a class="button button-primary" href="/?demo=1" data-route>Try it with sample data</a><span class="action-note">Opens a completed game card.</span><a class="button" href="${routeHref('new')}" data-route>${icon('plus')} Make your own card</a></div>
         <ul class="hero-facts" aria-label="Product facts"><li>Free</li><li>Stored on this device</li><li>Works offline after the first visit</li></ul>
         <a class="quiet-link" href="#how-it-works">Read the 3-step guide <span aria-hidden="true">↓</span></a>
         <p class="care-note"><strong>Stop playing when you feel unwell.</strong> This planning tool is not medical advice or a promise that a game will feel safe.</p>
@@ -314,7 +314,7 @@ function endedSessionView(card: ComfortCard, session: Session): string {
 function legalView(kind: 'privacy' | 'terms'): string {
   const privacy = `<p class="eyebrow">Plain-language privacy</p><h1>Your notes stay yours.</h1><p class="legal-lede">Comfort Card works without an account. It saves game cards, symptom levels, and session notes in this browser.</p><h2>What leaves your device</h2><p>Nothing is sent to us. We use no analytics, ads, remote fonts, or third-party scripts. Your browser handles files or text you choose to share.</p><h2>Demo data</h2><p>The demo uses temporary memory. It never reads or changes your real cards. Reloading or leaving the demo discards its changes.</p><h2>Exports</h2><p>A clean shared card includes the game, platform, triggers, and settings plan. It excludes check-ins, dates, durations, and notes. A full backup includes all saved information. Treat that file as private.</p><h2>Deleting data</h2><p>Delete one card inside the app. You can also clear this site’s browser storage to remove every card.</p><h2>Contact</h2><p>For privacy questions, contact <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p><p class="legal-date">Effective 28 August 2026</p>`;
   const terms = `<p class="eyebrow">Terms of use</p><h1>A planning tool, not a safety test.</h1><p class="legal-lede">Comfort Card helps you organize personal settings experiments and record how a play session felt. It does not diagnose, prevent, or treat motion sickness.</p><h2>Use your own judgment</h2><p>No setting can make every game comfortable or safe for every person. Stop when you feel unwell. Seek qualified medical advice for severe, unusual, or persistent symptoms.</p><h2>No compatibility promise</h2><p>Setting names and availability vary by game, platform, and version. Suggestions are general options to look for, not claims that a particular game supports them.</p><h2>Your content</h2><p>You own the cards and notes you create. They are stored locally. You are responsible for exports you choose to share.</p><h2>Availability and liability</h2><p>The free service is provided “as is” without warranties. To the extent permitted by law, its maintainers are not liable for loss arising from use of the app.</p><p class="legal-date">Effective 28 August 2026</p>`;
-  return shell(`<article class="legal"><a class="back-link" href="/">← Comfort Card</a>${kind === 'privacy' ? privacy : terms}</article>`);
+  return shell(`<article class="legal"><a class="back-link" href="/" data-route>← Comfort Card</a>${kind === 'privacy' ? privacy : terms}</article>`);
 }
 
 function notFoundView(cardMissing = false): string {
@@ -503,10 +503,20 @@ async function persist(card: ComfortCard, message = 'Saved on this device.'): Pr
 }
 
 function navigate(url: string, replace = false): void {
+  const target = new URL(url, location.origin);
+  const targetDemo = target.pathname === '/demo' || target.pathname.startsWith('/demo/') || target.searchParams.get('demo') === '1';
+  const wasDemo = isDemoMode();
   history.replaceState({ ...(history.state ?? {}), scrollY: window.scrollY }, '');
   if (replace) history.replaceState({ scrollY: 0 }, '', url);
   else history.pushState({ scrollY: 0 }, '', url);
   window.scrollTo({ top: 0, behavior: 'instant' });
+  // The demo has no persistent store. Change the source of cards before
+  // painting a route in the other mode, so a demo can never briefly expose
+  // real cards (and vice versa).
+  if (wasDemo !== targetDemo) {
+    void loadCards().then(() => render(true));
+    return;
+  }
   render(true);
 }
 
@@ -675,7 +685,7 @@ app.addEventListener('click', async (event) => {
       navigate('/demo', true);
       showToast('Sample data reset.');
     }
-    if (action === 'start-real') location.assign('/');
+    if (action === 'start-real') navigate('/');
   } catch (error) {
     showToast(error instanceof Error ? error.message : 'That action did not complete.');
   }
