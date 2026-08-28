@@ -1,0 +1,86 @@
+{
+  "checkedAt": "2026-08-28T12:35:44.530Z",
+  "commit": "8250b7c585b5a44331d06c7b303f900a77f606da",
+  "deployment": "559db583-20a6-402f-8c0e-643de59e68b2",
+  "routes": {
+    "/": 200,
+    "/demo": 200,
+    "/privacy/": 200,
+    "/terms/": 200,
+    "/definitely-missing": 404
+  },
+  "desktop": {
+    "title": "Comfort Card — plan settings for motion sickness",
+    "lang": "en",
+    "h1": "Plan game settings before motion sickness starts.",
+    "h1Count": 1,
+    "main": true,
+    "audience": true,
+    "facts": true,
+    "medical": true,
+    "build": true,
+    "overflow": 0,
+    "canonical": "https://motion-comfort-card.sociobot.in/",
+    "social": "https://motion-comfort-card.sociobot.in/assets/social-card.png",
+    "requestCount": 4,
+    "errors": []
+  },
+  "mobile": {
+    "title": "Comfort Card — plan settings for motion sickness",
+    "lang": "en",
+    "h1": "Plan game settings before motion sickness starts.",
+    "h1Count": 1,
+    "main": true,
+    "audience": true,
+    "facts": true,
+    "medical": true,
+    "build": true,
+    "overflow": 0,
+    "canonical": "https://motion-comfort-card.sociobot.in/",
+    "social": "https://motion-comfort-card.sociobot.in/assets/social-card.png",
+    "requestCount": 4,
+    "errors": []
+  },
+  "directDemoDatabases": [],
+  "focus": {
+    "forward": true,
+    "back": true,
+    "scrollY": 382,
+    "announcement": "Plan game settings before motion sickness starts."
+  },
+  "legal": {
+    "/privacy/": {
+      "title": "Privacy — Comfort Card",
+      "h1": "Your notes stay yours.",
+      "canonical": "https://motion-comfort-card.sociobot.in/privacy/"
+    },
+    "/terms/": {
+      "title": "Terms — Comfort Card",
+      "h1": "A planning tool, not a safety test.",
+      "canonical": "https://motion-comfort-card.sociobot.in/terms/"
+    },
+    "/definitely-missing": {
+      "title": "Page not found — Comfort Card",
+      "h1": "This page is not in the drawer.",
+      "canonical": "https://motion-comfort-card.sociobot.in/404"
+    }
+  },
+  "offline": {
+    "controlled": true,
+    "title": "Demo — Comfort Card",
+    "h1": "Harbor Signal",
+    "banner": true
+  },
+  "axe": [
+    { "viewport": "desktop", "path": "/", "violations": 0 },
+    { "viewport": "desktop", "path": "/demo", "violations": 0 },
+    { "viewport": "desktop", "path": "/privacy/", "violations": 0 },
+    { "viewport": "desktop", "path": "/terms/", "violations": 0 },
+    { "viewport": "desktop", "path": "/definitely-missing", "violations": 0 },
+    { "viewport": "mobile", "path": "/", "violations": 0 },
+    { "viewport": "mobile", "path": "/demo", "violations": 0 },
+    { "viewport": "mobile", "path": "/privacy/", "violations": 0 },
+    { "viewport": "mobile", "path": "/terms/", "violations": 0 },
+    { "viewport": "mobile", "path": "/definitely-missing", "violations": 0 }
+  ]
+}
