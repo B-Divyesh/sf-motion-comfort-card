@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Comfort Card",
+  "short_name": "Comfort Card",
+  "description": "Private game-specific motion comfort plans and 15-minute session check-ins.",
+  "start_url": "/?v=1",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F4EBD8",
+  "theme_color": "#F4EBD8",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Make a new card", "short_name": "New card", "url": "/#new", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
