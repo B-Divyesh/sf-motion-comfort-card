@@ -508,7 +508,7 @@ app.addEventListener('change', (event) => {
   input.value = '';
 });
 
-window.addEventListener('hashchange', () => { afterCheckIn = false; render(); });
+window.addEventListener('hashchange', render);
 window.addEventListener('online', updateOfflineBanner);
 window.addEventListener('offline', updateOfflineBanner);
 window.addEventListener('beforeinstallprompt', (event) => { event.preventDefault(); deferredInstall = event; });
@@ -538,4 +538,5 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   }).catch(() => { /* The app remains usable without installation support. */ });
 }
 
+app.innerHTML = shell('<section class="loading-state" aria-busy="true"><p class="eyebrow">Local by design</p><h1>Opening your cards…</h1><p>Reading this device only.</p></section>');
 void loadCards();
