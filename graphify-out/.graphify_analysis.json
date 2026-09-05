@@ -228,23 +228,23 @@
       "degree": 12
     },
     {
-      "id": "src_main_shell",
-      "label": "shell()",
-      "degree": 12
-    },
-    {
       "id": "src_main_cardview",
       "label": "cardView()",
       "degree": 12
     },
     {
-      "id": "src_main_sessionview",
-      "label": "sessionView()",
-      "degree": 11
+      "id": "src_main_shell",
+      "label": "shell()",
+      "degree": 12
     },
     {
       "id": "src_main_escapehtml",
       "label": "escapeHtml()",
+      "degree": 11
+    },
+    {
+      "id": "src_main_sessionview",
+      "label": "sessionView()",
       "degree": 11
     },
     {
@@ -254,28 +254,6 @@
     }
   ],
   "surprises": [
-    {
-      "source": "getCards()",
-      "target": "isComfortCard()",
-      "source_files": [
-        "src/db.ts",
-        "src/model.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
-      "source": "shareDialog()",
-      "target": "shareText()",
-      "source_files": [
-        "src/main.ts",
-        "src/model.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
     {
       "source": "loadCards()",
       "target": "getCards()",
@@ -299,8 +277,30 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "cardSlip()",
-      "target": "longestSession()",
+      "source": "checkInView()",
+      "target": "elapsedMs()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "sessionView()",
+      "target": "elapsedMs()",
+      "source_files": [
+        "src/main.ts",
+        "src/model.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "endedSessionView()",
+      "target": "finishedSessionMinutes()",
       "source_files": [
         "src/main.ts",
         "src/model.ts"
