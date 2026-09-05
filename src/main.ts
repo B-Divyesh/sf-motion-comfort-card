@@ -318,7 +318,7 @@ function legalView(kind: 'privacy' | 'terms'): string {
 }
 
 function notFoundView(cardMissing = false): string {
-  return shell(`<section class="error-state not-found"><div class="not-found-mark" aria-hidden="true">404</div><p class="eyebrow">${cardMissing ? 'Card not found' : 'Page not found'}</p><h1>${cardMissing ? 'That game card is not on this device.' : 'This page is not in the drawer.'}</h1><p>${cardMissing ? 'It may have been deleted, or this link may belong to another browser.' : 'Check the address, or return to your game cards.'}</p><a class="button button-primary" href="${routeHref()}" data-route>Return to your cards</a></section>`);
+  return shell(`<section class="error-state not-found"><div class="not-found-mark" aria-hidden="true">404</div><p class="eyebrow">${cardMissing ? 'Card not found' : 'Page not found'}</p><h1>${cardMissing ? 'That game card is not on this device.' : 'Page not found.'}</h1><p>${cardMissing ? 'It may have been deleted, or this link may belong to another browser.' : 'Check the address, or return to your game cards.'}</p><a class="button button-primary" href="${routeHref()}" data-route>Return to your cards</a></section>`);
 }
 
 function formatTimer(ms: number): string {

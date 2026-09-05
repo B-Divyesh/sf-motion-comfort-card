@@ -226,7 +226,7 @@ test('keeps demo mode, title, and focus through internal navigation and Back', a
 test('renders a designed not-found page instead of the home page', async ({ page }) => {
   await page.goto('/definitely-missing');
   await expect(page).toHaveTitle('Page not found — Comfort Card');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is not in the drawer.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found.');
   await expect(page.getByText('Plan game settings before motion sickness starts.')).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'Return to your cards' })).toBeVisible();
 });

@@ -230,5 +230,5 @@ test('@claim:pwa-routing production worker controls direct routes offline and mi
   await context.setOffline(false);
   await page.goto('/definitely-missing');
   await expect(page).toHaveTitle('Page not found — Comfort Card');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is not in the drawer.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found.');
 });
